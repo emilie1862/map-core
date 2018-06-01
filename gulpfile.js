@@ -56,6 +56,11 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
                 main: true,
                 browser: true,
             }),
+            commonjs({
+              namedExports: {
+                'node_modules/leaflet-timedimension/leaflet.timedimension.src.js': [ 'L' ]
+              }
+            }),
             rollupBabel({ exclude: 'node_modules/**' })
         ]
     })

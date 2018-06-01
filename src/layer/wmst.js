@@ -3,12 +3,12 @@
 import jQuery from "jquery";
 import Q from "q";
 import { TileLayer, tileLayer, timeDimension } from 'leaflet';
-import * as TimeDimension from "leaflet-timedimension";
+import { L } from 'leaflet-timedimension';
 
 import {Config} from 'geoplatform.client';
 
 
-var WMST = TimeDimension.Layer.WMS.extend({
+var WMST = L.TimeDimension.Layer.WMS.extend({
 
     //override default parser to query all Layers (whether queryable or not)
     _parseTimeDimensionFromCapabilities: function(xml) {
