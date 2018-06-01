@@ -36,14 +36,15 @@ gulp.task('jshint', function () {
 gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
     return rollup.rollup({
         input: './src/index.js',
-        external: ['Q', 'q', 'jquery', 'jQuery', 'leaflet', 'Leaflet', 'L', 'geoplatform.client'],
+        external: ['Q', 'q', 'jquery', 'jQuery', 'leaflet', 'Leaflet', 'L', 'geoplatform.client', 'esri', 'esri-leaflet'],
         output: {
             format: 'umd',
             globals: {
                 'q': 'Q',
                 'jquery': 'jQuery',
                 'leaflet': 'L',
-                'geoplatform.client': 'GeoPlatformClient'
+                'geoplatform.client': 'GeoPlatformClient',
+                'esri-leaflet': 'esri'
             }
         },
         plugins: [
@@ -66,7 +67,8 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
               'q': 'Q',
               'jquery': 'jQuery',
               'leaflet': 'L',
-              'geoplatform.client': 'GeoPlatformClient'
+              'geoplatform.client': 'GeoPlatformClient',
+              'esri-leaflet': 'esri'
           },
           sourcemap: true
         });
