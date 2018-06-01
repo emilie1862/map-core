@@ -1,6 +1,7 @@
 
 /* jshint ignore:start */
-import { setOptions, markerClusterGroup, GeoJSON, esri } from 'leaflet';
+import { setOptions, markerClusterGroup, GeoJSON } from 'leaflet';
+import * as esri from 'esri-leaflet';
 // import { Cluster } from 'esri-leaflet';
 
 /* esri-leaflet-cluster - v2.0.0 - Thu Aug 18 2016 17:12:43 GMT-0700 (PDT)
