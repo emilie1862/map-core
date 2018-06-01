@@ -68,7 +68,7 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
               'jquery': 'jQuery',
               'leaflet': 'L',
               'geoplatform.client': 'GeoPlatformClient',
-              'esri-leaflet': 'esri'
+              'esri-leaflet': 'L.esri'
           },
           sourcemap: true
         });
