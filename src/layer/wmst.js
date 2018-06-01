@@ -2,7 +2,8 @@
 
 import jQuery from "jquery";
 import Q from "q";
-import { TileLayer, tileLayer, TimeDimension, timeDimension } from 'leaflet';
+import { TileLayer, tileLayer, timeDimension } from 'leaflet';
+import * as TimeDimension from "leaflet-timedimension";
 
 import {Config} from 'geoplatform.client';
 
