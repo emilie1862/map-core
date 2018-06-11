@@ -37,7 +37,7 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
     return rollup.rollup({
         input: './src/index.js',
         external: ['Q', 'q', 'jquery', 'jQuery', 'leaflet', 'Leaflet', 'L',
-          'geoplatform.client', 'esri', 'esri-leaflet', 'leaflet-timedimension', 'TimeDimension'],
+          'geoplatform.client', 'esri', 'esri-leaflet'],
         output: {
             format: 'umd',
             globals: {
@@ -45,8 +45,7 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
                 'jquery': 'jQuery',
                 'leaflet': 'L',
                 'geoplatform.client': 'GeoPlatformClient',
-                'esri-leaflet': 'esri',
-                'leaflet-timedimension': 'TimeDimension'
+                'esri-leaflet': 'esri'
             }
         },
         plugins: [
@@ -56,11 +55,7 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
                 main: true,
                 browser: true,
             }),
-            commonjs({
-              namedExports: {
-                'node_modules/leaflet-timedimension/leaflet.timedimension.src.js': [ 'L' ]
-              }
-            }),
+            commonjs(),
             rollupBabel({ exclude: 'node_modules/**' })
         ]
     })
@@ -75,8 +70,7 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
               'jquery': 'jQuery',
               'leaflet': 'L',
               'geoplatform.client': 'GeoPlatformClient',
-              'esri-leaflet': 'L.esri',
-              'leaflet-timedimension': 'L.TimeDimension'
+              'esri-leaflet': 'L.esri'
           },
           sourcemap: true
         });
