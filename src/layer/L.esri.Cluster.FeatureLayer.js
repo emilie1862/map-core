@@ -1,7 +1,8 @@
 
 /* jshint ignore:start */
-import { setOptions, markerClusterGroup, GeoJSON } from 'leaflet';
+import { setOptions, GeoJSON } from 'leaflet';
 import * as esri from 'esri-leaflet';
+import * as MarkerClusterGroup from 'leaflet.markercluster'
 // import { Cluster } from 'esri-leaflet';
 
 /* esri-leaflet-cluster - v2.0.0 - Thu Aug 18 2016 17:12:43 GMT-0700 (PDT)
@@ -29,7 +30,7 @@ var FeatureLayer = esri.FeatureManager.extend({
     this._layers = {};
     this._leafletIds = {};
 
-    this.cluster = markerClusterGroup(options);
+    this.cluster = L.markerClusterGroup(options);
     this._key = 'c' + (Math.random() * 1e9).toString(36).replace('.', '_');
 
     this.cluster.addEventParent(this);

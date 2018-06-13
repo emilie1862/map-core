@@ -2,7 +2,7 @@
 
 import jQuery from "jquery";
 import Q from "q";
-import { TileLayer, tileLayer, timeDimension } from 'leaflet';
+import { TileLayer, tileLayer } from 'leaflet';
 import * as TimeDimension from 'leaflet-timedimension/dist/leaflet.timedimension.min';
 
 import {Config} from 'geoplatform.client';
@@ -88,7 +88,7 @@ function wmst(gpLayer) {
     }
 
     return new WMST(leafletLayer, {
-        timeDimension: timeDimension(tdOpts),
+        timeDimension: L.timeDimension(tdOpts),
         proxy: proxyUrl
     });
 }

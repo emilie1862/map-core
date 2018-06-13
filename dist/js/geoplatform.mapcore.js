@@ -1,15 +1,15 @@
 /* This software has been approved for release by the U.S. Department of the Interior. Although the software has been subjected to rigorous review, the DOI reserves the right to update the software as needed pursuant to further analysis and review. No warranty, expressed or implied, is made by the DOI or the U.S. Government as to the functionality of the software and related material nor shall the fact of release constitute any such warranty. Furthermore, the software is released on condition that neither the DOI nor the U.S. Government shall be held liable for any damages resulting from its authorized or unauthorized use. */
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('leaflet'), require('q'), require('geoplatform.client'), require('jquery')) :
-    typeof define === 'function' && define.amd ? define(['leaflet', 'q', 'geoplatform.client', 'jquery'], factory) :
-    (global.GeoPlatformMapCore = factory(global.L,global.Q,global.GeoPlatformClient,global.jQuery));
-}(this, (function (L$1,Q,GeoPlatformClient,jQuery) { 'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('leaflet'), require('q'), require('geoplatform.client'), require('jquery'), require('esri-leaflet')) :
+    typeof define === 'function' && define.amd ? define(['leaflet', 'q', 'geoplatform.client', 'jquery', 'esri-leaflet'], factory) :
+    (global.GeoPlatformMapCore = factory(global.L,global.Q,global.GeoPlatformClient,global.jQuery,global.L.esri));
+}(this, (function (leaflet,Q,GeoPlatformClient,jQuery,esri) { 'use strict';
 
     Q = Q && Q.hasOwnProperty('default') ? Q['default'] : Q;
     var GeoPlatformClient__default = 'default' in GeoPlatformClient ? GeoPlatformClient['default'] : GeoPlatformClient;
     jQuery = jQuery && jQuery.hasOwnProperty('default') ? jQuery['default'] : jQuery;
 
-    var loadingControl = L$1.Control.extend({
+    var loadingControl = leaflet.Control.extend({
         options: {
             position: 'topleft',
             separate: false,
@@ -26,7 +26,7 @@
         },
 
         initialize: function initialize(options) {
-            L$1.setOptions(this, options);
+            leaflet.setOptions(this, options);
             this._dataLoaders = {};
 
             // Try to set the zoom control this control is attached to from the
@@ -63,9 +63,9 @@
                 classes += ' leaflet-bar-part-bottom leaflet-bar-part last';
             } else {
                 // Otherwise, create a container for the indicator
-                container = L$1.DomUtil.create('div', 'leaflet-control-zoom leaflet-bar');
+                container = leaflet.DomUtil.create('div', 'leaflet-control-zoom leaflet-bar');
             }
-            this._indicator = L$1.DomUtil.create('a', classes, container);
+            this._indicator = leaflet.DomUtil.create('a', classes, container);
             if (this.options.spinjs) {
                 this._spinner = new Spinner(this.options.spin).spin();
                 this._indicator.appendChild(this._spinner.el);
@@ -89,7 +89,7 @@
             } else {
                 // If this control is separate from the zoomControl, call the
                 // parent method so we don't leave behind an empty container
-                return L$1.Control.prototype.removeFrom.call(this, map);
+                return leaflet.Control.prototype.removeFrom.call(this, map);
             }
         },
 
@@ -126,28 +126,28 @@
 
         _showIndicator: function _showIndicator() {
             // Show loading indicator
-            L$1.DomUtil.addClass(this._indicator, 'is-loading');
+            leaflet.DomUtil.addClass(this._indicator, 'is-loading');
 
             // If zoomControl exists, make the zoom-out button not last
             if (!this.options.separate) {
-                if (this.zoomControl instanceof L$1.Control.Zoom) {
-                    L$1.DomUtil.removeClass(this.zoomControl._zoomOutButton, 'leaflet-bar-part-bottom');
-                } else if (typeof L$1.Control.Zoomslider === 'function' && this.zoomControl instanceof L$1.Control.Zoomslider) {
-                    L$1.DomUtil.removeClass(this.zoomControl._ui.zoomOut, 'leaflet-bar-part-bottom');
+                if (this.zoomControl instanceof leaflet.Control.Zoom) {
+                    leaflet.DomUtil.removeClass(this.zoomControl._zoomOutButton, 'leaflet-bar-part-bottom');
+                } else if (typeof leaflet.Control.Zoomslider === 'function' && this.zoomControl instanceof leaflet.Control.Zoomslider) {
+                    leaflet.DomUtil.removeClass(this.zoomControl._ui.zoomOut, 'leaflet-bar-part-bottom');
                 }
             }
         },
 
         _hideIndicator: function _hideIndicator() {
             // Hide loading indicator
-            L$1.DomUtil.removeClass(this._indicator, 'is-loading');
+            leaflet.DomUtil.removeClass(this._indicator, 'is-loading');
 
             // If zoomControl exists, make the zoom-out button last
             if (!this.options.separate) {
-                if (this.zoomControl instanceof L$1.Control.Zoom) {
-                    L$1.DomUtil.addClass(this.zoomControl._zoomOutButton, 'leaflet-bar-part-bottom');
-                } else if (typeof L$1.Control.Zoomslider === 'function' && this.zoomControl instanceof L$1.Control.Zoomslider) {
-                    L$1.DomUtil.addClass(this.zoomControl._ui.zoomOut, 'leaflet-bar-part-bottom');
+                if (this.zoomControl instanceof leaflet.Control.Zoom) {
+                    leaflet.DomUtil.addClass(this.zoomControl._zoomOutButton, 'leaflet-bar-part-bottom');
+                } else if (typeof leaflet.Control.Zoomslider === 'function' && this.zoomControl instanceof leaflet.Control.Zoomslider) {
+                    leaflet.DomUtil.addClass(this.zoomControl._ui.zoomOut, 'leaflet-bar-part-bottom');
                 }
             }
         },
@@ -232,25 +232,25 @@
         }
     });
 
-    L$1.Control.Loading = loadingControl;
-    L$1.Control.loading = function (options) {
-        return new L$1.Control.Loading(options);
+    leaflet.Control.Loading = loadingControl;
+    leaflet.Control.loading = function (options) {
+        return new leaflet.Control.Loading(options);
     };
-    L$1.Map.addInitHook(function () {
+    leaflet.Map.addInitHook(function () {
         if (this.options.loadingControl) {
             this.loadingControl = new loadingControl();
             this.addControl(this.loadingControl);
         }
     });
 
-    var measureControl = L$1.Control.extend({
+    var measureControl = leaflet.Control.extend({
         options: {
             position: 'topleft'
         },
 
         onAdd: function onAdd(map) {
             var className = 'leaflet-control-zoom leaflet-bar leaflet-control',
-                container = L$1.DomUtil.create('div', className);
+                container = leaflet.DomUtil.create('div', className);
 
             this._createButton('&#8674;', 'Measure', 'leaflet-control-measure leaflet-bar-part leaflet-bar-part-top-and-bottom', container, this._toggleMeasure, this);
 
@@ -258,12 +258,12 @@
         },
 
         _createButton: function _createButton(html, title, className, container, fn, context) {
-            var link = L$1.DomUtil.create('a', className, container);
+            var link = leaflet.DomUtil.create('a', className, container);
             link.innerHTML = html;
             link.href = '#';
             link.title = title;
 
-            L$1.DomEvent.on(link, 'click', L$1.DomEvent.stopPropagation).on(link, 'click', L$1.DomEvent.preventDefault).on(link, 'click', fn, context).on(link, 'dblclick', L$1.DomEvent.stopPropagation);
+            leaflet.DomEvent.on(link, 'click', leaflet.DomEvent.stopPropagation).on(link, 'click', leaflet.DomEvent.preventDefault).on(link, 'click', fn, context).on(link, 'dblclick', leaflet.DomEvent.stopPropagation);
 
             return link;
         },
@@ -272,10 +272,10 @@
             this._measuring = !this._measuring;
 
             if (this._measuring) {
-                L$1.DomUtil.addClass(this._container, 'leaflet-control-measure-on');
+                leaflet.DomUtil.addClass(this._container, 'leaflet-control-measure-on');
                 this._startMeasuring();
             } else {
-                L$1.DomUtil.removeClass(this._container, 'leaflet-control-measure-on');
+                leaflet.DomUtil.removeClass(this._container, 'leaflet-control-measure-on');
                 this._stopMeasuring();
             }
         },
@@ -287,10 +287,10 @@
             this._doubleClickZoom = this._map.doubleClickZoom.enabled();
             this._map.doubleClickZoom.disable();
 
-            L$1.DomEvent.on(this._map, 'mousemove', this._mouseMove, this).on(this._map, 'click', this._mouseClick, this).on(this._map, 'dblclick', this._finishPath, this).on(document, 'keydown', this._onKeyDown, this);
+            leaflet.DomEvent.on(this._map, 'mousemove', this._mouseMove, this).on(this._map, 'click', this._mouseClick, this).on(this._map, 'dblclick', this._finishPath, this).on(document, 'keydown', this._onKeyDown, this);
 
             if (!this._layerPaint) {
-                this._layerPaint = L$1.layerGroup().addTo(this._map);
+                this._layerPaint = leaflet.layerGroup().addTo(this._map);
             }
 
             if (!this._points) {
@@ -301,7 +301,7 @@
         _stopMeasuring: function _stopMeasuring() {
             this._map._container.style.cursor = this._oldCursor;
 
-            L$1.DomEvent.off(document, 'keydown', this._onKeyDown, this).off(this._map, 'mousemove', this._mouseMove, this).off(this._map, 'click', this._mouseClick, this).off(this._map, 'dblclick', this._mouseClick, this);
+            leaflet.DomEvent.off(document, 'keydown', this._onKeyDown, this).off(this._map, 'mousemove', this._mouseMove, this).off(this._map, 'click', this._mouseClick, this).off(this._map, 'dblclick', this._mouseClick, this);
 
             if (this._doubleClickZoom) {
                 this._map.doubleClickZoom.enable();
@@ -320,7 +320,7 @@
             }
 
             if (!this._layerPaintPathTemp) {
-                this._layerPaintPathTemp = L$1.polyline([this._lastPoint, e.latlng], {
+                this._layerPaintPathTemp = leaflet.polyline([this._lastPoint, e.latlng], {
                     color: 'black',
                     weight: 1.5,
                     clickable: false,
@@ -365,7 +365,7 @@
 
             // If this is already the second click, add the location to the fix path (create one first if we don't have one)
             if (this._lastPoint && !this._layerPaintPath) {
-                this._layerPaintPath = L$1.polyline([this._lastPoint], {
+                this._layerPaintPath = leaflet.polyline([this._lastPoint], {
                     color: 'black',
                     weight: 2,
                     clickable: false
@@ -381,7 +381,7 @@
                 this._layerPaint.removeLayer(this._lastCircle);
             }
 
-            this._lastCircle = new L$1.CircleMarker(e.latlng, {
+            this._lastCircle = new leaflet.CircleMarker(e.latlng, {
                 color: 'black',
                 opacity: 1,
                 weight: 1,
@@ -425,11 +425,11 @@
         },
 
         _createTooltip: function _createTooltip(position) {
-            var icon = L$1.divIcon({
+            var icon = leaflet.divIcon({
                 className: 'leaflet-measure-tooltip',
                 iconAnchor: [-5, -5]
             });
-            this._tooltip = L$1.marker(position, {
+            this._tooltip = leaflet.marker(position, {
                 icon: icon,
                 clickable: false
             }).addTo(this._layerPaint);
@@ -467,23 +467,23 @@
         }
     });
 
-    L$1.Control.Measure = measureControl;
-    L$1.control.measure = function (options) {
-        return new L$1.Control.Measure(options);
+    leaflet.Control.Measure = measureControl;
+    leaflet.control.measure = function (options) {
+        return new leaflet.Control.Measure(options);
     };
 
-    L$1.Map.mergeOptions({
+    leaflet.Map.mergeOptions({
         measureControl: false
     });
 
-    L$1.Map.addInitHook(function () {
+    leaflet.Map.addInitHook(function () {
         if (this.options.measureControl) {
             this.measureControl = new measureControl();
             this.addControl(this.measureControl);
         }
     });
 
-    var positionControl = L$1.Control.extend({
+    var positionControl = leaflet.Control.extend({
       options: {
         position: 'bottomleft',
         separator: ' : ',
@@ -496,8 +496,8 @@
       },
 
       onAdd: function onAdd(map) {
-        this._container = L$1.DomUtil.create('div', 'leaflet-control-mouseposition');
-        L$1.DomEvent.disableClickPropagation(this._container);
+        this._container = leaflet.DomUtil.create('div', 'leaflet-control-mouseposition');
+        leaflet.DomEvent.disableClickPropagation(this._container);
         map.on('mousemove', this._onMouseMove, this);
         this._container.innerHTML = this.options.emptyString;
         return this._container;
@@ -508,8 +508,8 @@
       },
 
       _onMouseMove: function _onMouseMove(e) {
-        var lng = this.options.lngFormatter ? this.options.lngFormatter(e.latlng.lng) : L$1.Util.formatNum(e.latlng.lng, this.options.numDigits);
-        var lat = this.options.latFormatter ? this.options.latFormatter(e.latlng.lat) : L$1.Util.formatNum(e.latlng.lat, this.options.numDigits);
+        var lng = this.options.lngFormatter ? this.options.lngFormatter(e.latlng.lng) : leaflet.Util.formatNum(e.latlng.lng, this.options.numDigits);
+        var lat = this.options.latFormatter ? this.options.latFormatter(e.latlng.lat) : leaflet.Util.formatNum(e.latlng.lat, this.options.numDigits);
         var value = this.options.lngFirst ? lng + this.options.separator + lat : lat + this.options.separator + lng;
         var prefixAndValue = this.options.prefix + ' ' + value;
         this._container.innerHTML = prefixAndValue;
@@ -517,16 +517,16 @@
 
     });
 
-    L$1.Control.MousePosition = positionControl;
-    L$1.control.mousePosition = function (options) {
-      return new L$1.Control.MousePosition(options);
+    leaflet.Control.MousePosition = positionControl;
+    leaflet.control.mousePosition = function (options) {
+      return new leaflet.Control.MousePosition(options);
     };
 
-    L$1.Map.mergeOptions({
+    leaflet.Map.mergeOptions({
       positionControl: false
     });
 
-    L$1.Map.addInitHook(function () {
+    leaflet.Map.addInitHook(function () {
       if (this.options.positionControl) {
         this.positionControl = new positionControl();
         this.addControl(this.positionControl);
@@ -808,7 +808,7 @@
      * as adding visibility and opacity manipulation methods
      * @extends L.esri.FeatureLayer
      */
-    var FeatureLayer = L$1.esri.FeatureLayer.extend({
+    var FeatureLayer = esri.FeatureLayer.extend({
 
         _gpStyle: { color: "#00f", weight: 2, fillColor: '#00f', fillOpacity: 0.3 },
 
@@ -837,7 +837,7 @@
             if (style.shape === 'image') {
                 var width = style.width || 16;
                 var height = style.height || 16;
-                var icon = L$1.icon({
+                var icon = leaflet.icon({
                     iconUrl: style.content, //base64 encoded string
                     iconSize: [width, height],
                     iconAnchor: [width * 0.5, height * 0.5],
@@ -845,7 +845,7 @@
                 });
                 var mopts = { icon: icon };
                 if (GeoPlatformClient.Config.leafletPane) mopts.pane = GeoPlatformClient.Config.leafletPane;
-                marker = L$1.marker(latlng, mopts);
+                marker = leaflet.marker(latlng, mopts);
             } else {
                 style.radius = style.radius || style['stroke-width'] || 4;
                 style.weight = style.weight || style['stroke-width'] || 2;
@@ -854,7 +854,7 @@
                 style.fillOpacity = style.opacity || style['fill-opacity'] || 0.3;
                 style.fillColor = style.color || style.fill;
                 style.renderer = this.options.renderer; //important for pane!
-                marker = L$1.circleMarker(latlng, style);
+                marker = leaflet.circleMarker(latlng, style);
             }
 
             var popupTemplate = this.options.popupTemplate || featurePopupTemplate;
@@ -889,11 +889,11 @@
             // must specify renderer and set desired pane on that
             var svgOpts = {};
             if (GeoPlatformClient.Config.leafletPane) svgOpts.pane = GeoPlatformClient.Config.leafletPane;
-            var renderer = L$1.SVG && L$1.svg(svgOpts) || L$1.Canvas && L$1.canvas();
+            var renderer = leaflet.SVG && leaflet.svg(svgOpts) || leaflet.Canvas && leaflet.canvas();
             options.renderer = renderer;
 
-            options.pointToLayer = L$1.bind(this.pointToLayerFn, this);
-            options.onEachFeature = L$1.bind(this.eachFeatureFn, this);
+            options.pointToLayer = leaflet.bind(this.pointToLayerFn, this);
+            options.onEachFeature = leaflet.bind(this.eachFeatureFn, this);
 
             // options.fields = ['FID', 'type', 'title', 'geometry'];
 
@@ -937,7 +937,7 @@
 
                     if (json && json.styles) {
 
-                        var styleFn = L$1.Util.bind(function (feature) {
+                        var styleFn = leaflet.Util.bind(function (feature) {
 
                             var property = this.property || this.field1;
                             var v = feature[property] || (feature.properties ? feature.properties[property] : null);
@@ -993,7 +993,15 @@
 
     });
 
-    var FeatureLayer$1 = L$1.esri.FeatureManager.extend({
+    /*
+     Leaflet.markercluster, Provides Beautiful Animated Marker Clustering functionality for Leaflet, a JS library for interactive maps.
+     https://github.com/Leaflet/Leaflet.markercluster
+     (c) 2012-2013, Dave Leaver, smartrak
+    */
+    !function(e,t,i){L.MarkerClusterGroup=L.FeatureGroup.extend({options:{maxClusterRadius:80,iconCreateFunction:null,spiderfyOnMaxZoom:!0,showCoverageOnHover:!0,zoomToBoundsOnClick:!0,singleMarkerMode:!1,disableClusteringAtZoom:null,removeOutsideVisibleBounds:!0,animate:!0,animateAddingMarkers:!1,spiderfyDistanceMultiplier:1,spiderLegPolylineOptions:{weight:1.5,color:"#222",opacity:.5},chunkedLoading:!1,chunkInterval:200,chunkDelay:50,chunkProgress:null,polygonOptions:{}},initialize:function(e){L.Util.setOptions(this,e), this.options.iconCreateFunction||(this.options.iconCreateFunction=this._defaultIconCreateFunction), this.options.clusterPane||(this.options.clusterPane=L.Marker.prototype.options.pane), this._featureGroup=L.featureGroup(), this._featureGroup.addEventParent(this), this._nonPointGroup=L.featureGroup(), this._nonPointGroup.addEventParent(this), this._inZoomAnimation=0, this._needsClustering=[], this._needsRemoving=[], this._currentShownBounds=null, this._queue=[], this._childMarkerEventHandlers={dragstart:this._childMarkerDragStart,move:this._childMarkerMoved,dragend:this._childMarkerDragEnd};var t=L.DomUtil.TRANSITION&&this.options.animate;L.extend(this,t?this._withAnimation:this._noAnimation), this._markerCluster=t?L.MarkerCluster:L.MarkerClusterNonAnimated;},addLayer:function(e){if(e instanceof L.LayerGroup)return this.addLayers([e]);if(!e.getLatLng)return this._nonPointGroup.addLayer(e), this.fire("layeradd",{layer:e}), this;if(!this._map)return this._needsClustering.push(e), this.fire("layeradd",{layer:e}), this;if(this.hasLayer(e))return this;this._unspiderfy&&this._unspiderfy(), this._addLayer(e,this._maxZoom), this.fire("layeradd",{layer:e}), this._topClusterLevel._recalculateBounds(), this._refreshClustersIcons();var t=e,i=this._zoom;if(e.__parent)for(;t.__parent._zoom>=i;)t=t.__parent;return this._currentShownBounds.contains(t.getLatLng())&&(this.options.animateAddingMarkers?this._animationAddLayer(e,t):this._animationAddLayerNonAnimated(e,t)), this},removeLayer:function(e){return e instanceof L.LayerGroup?this.removeLayers([e]):e.getLatLng?this._map?e.__parent?(this._unspiderfy&&(this._unspiderfy(), this._unspiderfyLayer(e)), this._removeLayer(e,!0), this.fire("layerremove",{layer:e}), this._topClusterLevel._recalculateBounds(), this._refreshClustersIcons(), e.off(this._childMarkerEventHandlers,this), this._featureGroup.hasLayer(e)&&(this._featureGroup.removeLayer(e), e.clusterShow&&e.clusterShow()), this):this:(!this._arraySplice(this._needsClustering,e)&&this.hasLayer(e)&&this._needsRemoving.push({layer:e,latlng:e._latlng}), this.fire("layerremove",{layer:e}), this):(this._nonPointGroup.removeLayer(e), this.fire("layerremove",{layer:e}), this)},addLayers:function(e,t){if(!L.Util.isArray(e))return this.addLayer(e);var i,n=this._featureGroup,r=this._nonPointGroup,s=this.options.chunkedLoading,o=this.options.chunkInterval,a=this.options.chunkProgress,h=e.length,l=0,u=!0;if(this._map){var _=(new Date).getTime(),d=L.bind(function(){for(var c=(new Date).getTime();h>l;l++){if(s&&0===l%200){var p=(new Date).getTime()-c;if(p>o)break}if(i=e[l], i instanceof L.LayerGroup)u&&(e=e.slice(), u=!1), this._extractNonGroupLayers(i,e), h=e.length;else if(i.getLatLng){if(!this.hasLayer(i)&&(this._addLayer(i,this._maxZoom), t||this.fire("layeradd",{layer:i}), i.__parent&&2===i.__parent.getChildCount())){var f=i.__parent.getAllChildMarkers(),m=f[0]===i?f[1]:f[0];n.removeLayer(m);}}else r.addLayer(i), t||this.fire("layeradd",{layer:i});}a&&a(l,h,(new Date).getTime()-_), l===h?(this._topClusterLevel._recalculateBounds(), this._refreshClustersIcons(), this._topClusterLevel._recursivelyAddChildrenToMap(null,this._zoom,this._currentShownBounds)):setTimeout(d,this.options.chunkDelay);},this);d();}else for(var c=this._needsClustering;h>l;l++)i=e[l], i instanceof L.LayerGroup?(u&&(e=e.slice(), u=!1), this._extractNonGroupLayers(i,e), h=e.length):i.getLatLng?this.hasLayer(i)||c.push(i):r.addLayer(i);return this},removeLayers:function(e){var t,i,n=e.length,r=this._featureGroup,s=this._nonPointGroup,o=!0;if(!this._map){for(t=0;n>t;t++)i=e[t], i instanceof L.LayerGroup?(o&&(e=e.slice(), o=!1), this._extractNonGroupLayers(i,e), n=e.length):(this._arraySplice(this._needsClustering,i), s.removeLayer(i), this.hasLayer(i)&&this._needsRemoving.push({layer:i,latlng:i._latlng}), this.fire("layerremove",{layer:i}));return this}if(this._unspiderfy){this._unspiderfy();var a=e.slice(),h=n;for(t=0;h>t;t++)i=a[t], i instanceof L.LayerGroup?(this._extractNonGroupLayers(i,a), h=a.length):this._unspiderfyLayer(i);}for(t=0;n>t;t++)i=e[t], i instanceof L.LayerGroup?(o&&(e=e.slice(), o=!1), this._extractNonGroupLayers(i,e), n=e.length):i.__parent?(this._removeLayer(i,!0,!0), this.fire("layerremove",{layer:i}), r.hasLayer(i)&&(r.removeLayer(i), i.clusterShow&&i.clusterShow())):(s.removeLayer(i), this.fire("layerremove",{layer:i}));return this._topClusterLevel._recalculateBounds(), this._refreshClustersIcons(), this._topClusterLevel._recursivelyAddChildrenToMap(null,this._zoom,this._currentShownBounds), this},clearLayers:function(){return this._map||(this._needsClustering=[], delete this._gridClusters, delete this._gridUnclustered), this._noanimationUnspiderfy&&this._noanimationUnspiderfy(), this._featureGroup.clearLayers(), this._nonPointGroup.clearLayers(), this.eachLayer(function(e){e.off(this._childMarkerEventHandlers,this), delete e.__parent;},this), this._map&&this._generateInitialClusters(), this},getBounds:function(){var e=new L.LatLngBounds;this._topClusterLevel&&e.extend(this._topClusterLevel._bounds);for(var t=this._needsClustering.length-1;t>=0;t--)e.extend(this._needsClustering[t].getLatLng());return e.extend(this._nonPointGroup.getBounds()), e},eachLayer:function(e,t){var i,n,r,s=this._needsClustering.slice(),o=this._needsRemoving;for(this._topClusterLevel&&this._topClusterLevel.getAllChildMarkers(s), n=s.length-1;n>=0;n--){for(i=!0, r=o.length-1;r>=0;r--)if(o[r].layer===s[n]){i=!1;break}i&&e.call(t,s[n]);}this._nonPointGroup.eachLayer(e,t);},getLayers:function(){var e=[];return this.eachLayer(function(t){e.push(t);}), e},getLayer:function(e){var t=null;return e=parseInt(e,10), this.eachLayer(function(i){L.stamp(i)===e&&(t=i);}), t},hasLayer:function(e){if(!e)return!1;var t,i=this._needsClustering;for(t=i.length-1;t>=0;t--)if(i[t]===e)return!0;for(i=this._needsRemoving, t=i.length-1;t>=0;t--)if(i[t].layer===e)return!1;return!(!e.__parent||e.__parent._group!==this)||this._nonPointGroup.hasLayer(e)},zoomToShowLayer:function(e,t){"function"!=typeof t&&(t=function(){});var i=function(){!e._icon&&!e.__parent._icon||this._inZoomAnimation||(this._map.off("moveend",i,this), this.off("animationend",i,this), e._icon?t():e.__parent._icon&&(this.once("spiderfied",t,this), e.__parent.spiderfy()));};e._icon&&this._map.getBounds().contains(e.getLatLng())?t():e.__parent._zoom<Math.round(this._map._zoom)?(this._map.on("moveend",i,this), this._map.panTo(e.getLatLng())):(this._map.on("moveend",i,this), this.on("animationend",i,this), e.__parent.zoomToBounds());},onAdd:function(e){this._map=e;var t,i,n;if(!isFinite(this._map.getMaxZoom()))throw"Map has no maxZoom specified";for(this._featureGroup.addTo(e), this._nonPointGroup.addTo(e), this._gridClusters||this._generateInitialClusters(), this._maxLat=e.options.crs.projection.MAX_LATITUDE, t=0, i=this._needsRemoving.length;i>t;t++)n=this._needsRemoving[t], n.newlatlng=n.layer._latlng, n.layer._latlng=n.latlng;for(t=0, i=this._needsRemoving.length;i>t;t++)n=this._needsRemoving[t], this._removeLayer(n.layer,!0), n.layer._latlng=n.newlatlng;this._needsRemoving=[], this._zoom=Math.round(this._map._zoom), this._currentShownBounds=this._getExpandedVisibleBounds(), this._map.on("zoomend",this._zoomEnd,this), this._map.on("moveend",this._moveEnd,this), this._spiderfierOnAdd&&this._spiderfierOnAdd(), this._bindEvents(), i=this._needsClustering, this._needsClustering=[], this.addLayers(i,!0);},onRemove:function(e){e.off("zoomend",this._zoomEnd,this), e.off("moveend",this._moveEnd,this), this._unbindEvents(), this._map._mapPane.className=this._map._mapPane.className.replace(" leaflet-cluster-anim",""), this._spiderfierOnRemove&&this._spiderfierOnRemove(), delete this._maxLat, this._hideCoverage(), this._featureGroup.remove(), this._nonPointGroup.remove(), this._featureGroup.clearLayers(), this._map=null;},getVisibleParent:function(e){for(var t=e;t&&!t._icon;)t=t.__parent;return t||null},_arraySplice:function(e,t){for(var i=e.length-1;i>=0;i--)if(e[i]===t)return e.splice(i,1), !0},_removeFromGridUnclustered:function(e,t){for(var i=this._map,n=this._gridUnclustered,r=Math.floor(this._map.getMinZoom());t>=r&&n[t].removeObject(e,i.project(e.getLatLng(),t));t--);},_childMarkerDragStart:function(e){e.target.__dragStart=e.target._latlng;},_childMarkerMoved:function(e){if(!this._ignoreMove&&!e.target.__dragStart){var t=e.target._popup&&e.target._popup.isOpen();this._moveChild(e.target,e.oldLatLng,e.latlng), t&&e.target.openPopup();}},_moveChild:function(e,t,i){e._latlng=t, this.removeLayer(e), e._latlng=i, this.addLayer(e);},_childMarkerDragEnd:function(e){e.target.__dragStart&&this._moveChild(e.target,e.target.__dragStart,e.target._latlng), delete e.target.__dragStart;},_removeLayer:function(e,t,i){var n=this._gridClusters,r=this._gridUnclustered,s=this._featureGroup,o=this._map,a=Math.floor(this._map.getMinZoom());t&&this._removeFromGridUnclustered(e,this._maxZoom);var h,l=e.__parent,u=l._markers;for(this._arraySplice(u,e);l&&(l._childCount--, l._boundsNeedUpdate=!0, !(l._zoom<a));)t&&l._childCount<=1?(h=l._markers[0]===e?l._markers[1]:l._markers[0], n[l._zoom].removeObject(l,o.project(l._cLatLng,l._zoom)), r[l._zoom].addObject(h,o.project(h.getLatLng(),l._zoom)), this._arraySplice(l.__parent._childClusters,l), l.__parent._markers.push(h), h.__parent=l.__parent, l._icon&&(s.removeLayer(l), i||s.addLayer(h))):l._iconNeedsUpdate=!0, l=l.__parent;delete e.__parent;},_isOrIsParent:function(e,t){for(;t;){if(e===t)return!0;t=t.parentNode;}return!1},fire:function(e,t,i){if(t&&t.layer instanceof L.MarkerCluster){if(t.originalEvent&&this._isOrIsParent(t.layer._icon,t.originalEvent.relatedTarget))return;e="cluster"+e;}L.FeatureGroup.prototype.fire.call(this,e,t,i);},listens:function(e,t){return L.FeatureGroup.prototype.listens.call(this,e,t)||L.FeatureGroup.prototype.listens.call(this,"cluster"+e,t)},_defaultIconCreateFunction:function(e){var t=e.getChildCount(),i=" marker-cluster-";return i+=10>t?"small":100>t?"medium":"large", new L.DivIcon({html:"<div><span>"+t+"</span></div>",className:"marker-cluster"+i,iconSize:new L.Point(40,40)})},_bindEvents:function(){var e=this._map,t=this.options.spiderfyOnMaxZoom,i=this.options.showCoverageOnHover,n=this.options.zoomToBoundsOnClick;(t||n)&&this.on("clusterclick",this._zoomOrSpiderfy,this), i&&(this.on("clustermouseover",this._showCoverage,this), this.on("clustermouseout",this._hideCoverage,this), e.on("zoomend",this._hideCoverage,this));},_zoomOrSpiderfy:function(e){for(var t=e.layer,i=t;1===i._childClusters.length;)i=i._childClusters[0];i._zoom===this._maxZoom&&i._childCount===t._childCount&&this.options.spiderfyOnMaxZoom?t.spiderfy():this.options.zoomToBoundsOnClick&&t.zoomToBounds(), e.originalEvent&&13===e.originalEvent.keyCode&&this._map._container.focus();},_showCoverage:function(e){var t=this._map;this._inZoomAnimation||(this._shownPolygon&&t.removeLayer(this._shownPolygon), e.layer.getChildCount()>2&&e.layer!==this._spiderfied&&(this._shownPolygon=new L.Polygon(e.layer.getConvexHull(),this.options.polygonOptions), t.addLayer(this._shownPolygon)));},_hideCoverage:function(){this._shownPolygon&&(this._map.removeLayer(this._shownPolygon), this._shownPolygon=null);},_unbindEvents:function(){var e=this.options.spiderfyOnMaxZoom,t=this.options.showCoverageOnHover,i=this.options.zoomToBoundsOnClick,n=this._map;(e||i)&&this.off("clusterclick",this._zoomOrSpiderfy,this), t&&(this.off("clustermouseover",this._showCoverage,this), this.off("clustermouseout",this._hideCoverage,this), n.off("zoomend",this._hideCoverage,this));},_zoomEnd:function(){this._map&&(this._mergeSplitClusters(), this._zoom=Math.round(this._map._zoom), this._currentShownBounds=this._getExpandedVisibleBounds());},_moveEnd:function(){if(!this._inZoomAnimation){var e=this._getExpandedVisibleBounds();this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds,Math.floor(this._map.getMinZoom()),this._zoom,e), this._topClusterLevel._recursivelyAddChildrenToMap(null,Math.round(this._map._zoom),e), this._currentShownBounds=e;}},_generateInitialClusters:function(){var e=Math.ceil(this._map.getMaxZoom()),t=Math.floor(this._map.getMinZoom()),i=this.options.maxClusterRadius,n=i;"function"!=typeof i&&(n=function(){return i}), null!==this.options.disableClusteringAtZoom&&(e=this.options.disableClusteringAtZoom-1), this._maxZoom=e, this._gridClusters={}, this._gridUnclustered={};for(var r=e;r>=t;r--)this._gridClusters[r]=new L.DistanceGrid(n(r)), this._gridUnclustered[r]=new L.DistanceGrid(n(r));this._topClusterLevel=new this._markerCluster(this,t-1);},_addLayer:function(e,t){var i,n,r=this._gridClusters,s=this._gridUnclustered,o=Math.floor(this._map.getMinZoom());for(this.options.singleMarkerMode&&this._overrideMarkerIcon(e), e.on(this._childMarkerEventHandlers,this);t>=o;t--){i=this._map.project(e.getLatLng(),t);var a=r[t].getNearObject(i);if(a)return a._addChild(e), e.__parent=a, void 0;if(a=s[t].getNearObject(i)){var h=a.__parent;h&&this._removeLayer(a,!1);var l=new this._markerCluster(this,t,a,e);r[t].addObject(l,this._map.project(l._cLatLng,t)), a.__parent=l, e.__parent=l;var u=l;for(n=t-1;n>h._zoom;n--)u=new this._markerCluster(this,n,u), r[n].addObject(u,this._map.project(a.getLatLng(),n));return h._addChild(u), this._removeFromGridUnclustered(a,t), void 0}s[t].addObject(e,i);}this._topClusterLevel._addChild(e), e.__parent=this._topClusterLevel;},_refreshClustersIcons:function(){this._featureGroup.eachLayer(function(e){e instanceof L.MarkerCluster&&e._iconNeedsUpdate&&e._updateIcon();});},_enqueue:function(e){this._queue.push(e), this._queueTimeout||(this._queueTimeout=setTimeout(L.bind(this._processQueue,this),300));},_processQueue:function(){for(var e=0;e<this._queue.length;e++)this._queue[e].call(this);this._queue.length=0, clearTimeout(this._queueTimeout), this._queueTimeout=null;},_mergeSplitClusters:function(){var e=Math.round(this._map._zoom);this._processQueue(), this._zoom<e&&this._currentShownBounds.intersects(this._getExpandedVisibleBounds())?(this._animationStart(), this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds,Math.floor(this._map.getMinZoom()),this._zoom,this._getExpandedVisibleBounds()), this._animationZoomIn(this._zoom,e)):this._zoom>e?(this._animationStart(), this._animationZoomOut(this._zoom,e)):this._moveEnd();},_getExpandedVisibleBounds:function(){return this.options.removeOutsideVisibleBounds?L.Browser.mobile?this._checkBoundsMaxLat(this._map.getBounds()):this._checkBoundsMaxLat(this._map.getBounds().pad(1)):this._mapBoundsInfinite},_checkBoundsMaxLat:function(e){var t=this._maxLat;return t!==i&&(e.getNorth()>=t&&(e._northEast.lat=1/0), e.getSouth()<=-t&&(e._southWest.lat=-1/0)), e},_animationAddLayerNonAnimated:function(e,t){if(t===e)this._featureGroup.addLayer(e);else if(2===t._childCount){t._addToMap();var i=t.getAllChildMarkers();this._featureGroup.removeLayer(i[0]), this._featureGroup.removeLayer(i[1]);}else t._updateIcon();},_extractNonGroupLayers:function(e,t){var i,n=e.getLayers(),r=0;for(t=t||[];r<n.length;r++)i=n[r], i instanceof L.LayerGroup?this._extractNonGroupLayers(i,t):t.push(i);return t},_overrideMarkerIcon:function(e){var t=e.options.icon=this.options.iconCreateFunction({getChildCount:function(){return 1},getAllChildMarkers:function(){return[e]}});return t}}), L.MarkerClusterGroup.include({_mapBoundsInfinite:new L.LatLngBounds(new L.LatLng(-1/0,-1/0),new L.LatLng(1/0,1/0))}), L.MarkerClusterGroup.include({_noAnimation:{_animationStart:function(){},_animationZoomIn:function(e,t){this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds,Math.floor(this._map.getMinZoom()),e), this._topClusterLevel._recursivelyAddChildrenToMap(null,t,this._getExpandedVisibleBounds()), this.fire("animationend");},_animationZoomOut:function(e,t){this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds,Math.floor(this._map.getMinZoom()),e), this._topClusterLevel._recursivelyAddChildrenToMap(null,t,this._getExpandedVisibleBounds()), this.fire("animationend");},_animationAddLayer:function(e,t){this._animationAddLayerNonAnimated(e,t);}},_withAnimation:{_animationStart:function(){this._map._mapPane.className+=" leaflet-cluster-anim", this._inZoomAnimation++;},_animationZoomIn:function(e,t){var i,n=this._getExpandedVisibleBounds(),r=this._featureGroup,s=Math.floor(this._map.getMinZoom());this._ignoreMove=!0, this._topClusterLevel._recursively(n,e,s,function(s){var o,a=s._latlng,h=s._markers;for(n.contains(a)||(a=null), s._isSingleParent()&&e+1===t?(r.removeLayer(s), s._recursivelyAddChildrenToMap(null,t,n)):(s.clusterHide(), s._recursivelyAddChildrenToMap(a,t,n)), i=h.length-1;i>=0;i--)o=h[i], n.contains(o._latlng)||r.removeLayer(o);}), this._forceLayout(), this._topClusterLevel._recursivelyBecomeVisible(n,t), r.eachLayer(function(e){e instanceof L.MarkerCluster||!e._icon||e.clusterShow();}), this._topClusterLevel._recursively(n,e,t,function(e){e._recursivelyRestoreChildPositions(t);}), this._ignoreMove=!1, this._enqueue(function(){this._topClusterLevel._recursively(n,e,s,function(e){r.removeLayer(e), e.clusterShow();}), this._animationEnd();});},_animationZoomOut:function(e,t){this._animationZoomOutSingle(this._topClusterLevel,e-1,t), this._topClusterLevel._recursivelyAddChildrenToMap(null,t,this._getExpandedVisibleBounds()), this._topClusterLevel._recursivelyRemoveChildrenFromMap(this._currentShownBounds,Math.floor(this._map.getMinZoom()),e,this._getExpandedVisibleBounds());},_animationAddLayer:function(e,t){var i=this,n=this._featureGroup;n.addLayer(e), t!==e&&(t._childCount>2?(t._updateIcon(), this._forceLayout(), this._animationStart(), e._setPos(this._map.latLngToLayerPoint(t.getLatLng())), e.clusterHide(), this._enqueue(function(){n.removeLayer(e), e.clusterShow(), i._animationEnd();})):(this._forceLayout(), i._animationStart(), i._animationZoomOutSingle(t,this._map.getMaxZoom(),this._zoom)));}},_animationZoomOutSingle:function(e,t,i){var n=this._getExpandedVisibleBounds(),r=Math.floor(this._map.getMinZoom());e._recursivelyAnimateChildrenInAndAddSelfToMap(n,r,t+1,i);var s=this;this._forceLayout(), e._recursivelyBecomeVisible(n,i), this._enqueue(function(){if(1===e._childCount){var o=e._markers[0];this._ignoreMove=!0, o.setLatLng(o.getLatLng()), this._ignoreMove=!1, o.clusterShow&&o.clusterShow();}else e._recursively(n,i,r,function(e){e._recursivelyRemoveChildrenFromMap(n,r,t+1);});s._animationEnd();});},_animationEnd:function(){this._map&&(this._map._mapPane.className=this._map._mapPane.className.replace(" leaflet-cluster-anim","")), this._inZoomAnimation--, this.fire("animationend");},_forceLayout:function(){L.Util.falseFn(t.body.offsetWidth);}}), L.markerClusterGroup=function(e){return new L.MarkerClusterGroup(e)}, L.MarkerCluster=L.Marker.extend({initialize:function(e,t,i,n){L.Marker.prototype.initialize.call(this,i?i._cLatLng||i.getLatLng():new L.LatLng(0,0),{icon:this,pane:e.options.clusterPane}), this._group=e, this._zoom=t, this._markers=[], this._childClusters=[], this._childCount=0, this._iconNeedsUpdate=!0, this._boundsNeedUpdate=!0, this._bounds=new L.LatLngBounds, i&&this._addChild(i), n&&this._addChild(n);},getAllChildMarkers:function(e){e=e||[];for(var t=this._childClusters.length-1;t>=0;t--)this._childClusters[t].getAllChildMarkers(e);for(var i=this._markers.length-1;i>=0;i--)e.push(this._markers[i]);return e},getChildCount:function(){return this._childCount},zoomToBounds:function(e){for(var t,i=this._childClusters.slice(),n=this._group._map,r=n.getBoundsZoom(this._bounds),s=this._zoom+1,o=n.getZoom();i.length>0&&r>s;){s++;var a=[];for(t=0;t<i.length;t++)a=a.concat(i[t]._childClusters);i=a;}r>s?this._group._map.setView(this._latlng,s):o>=r?this._group._map.setView(this._latlng,o+1):this._group._map.fitBounds(this._bounds,e);},getBounds:function(){var e=new L.LatLngBounds;return e.extend(this._bounds), e},_updateIcon:function(){this._iconNeedsUpdate=!0, this._icon&&this.setIcon(this);},createIcon:function(){return this._iconNeedsUpdate&&(this._iconObj=this._group.options.iconCreateFunction(this), this._iconNeedsUpdate=!1), this._iconObj.createIcon()},createShadow:function(){return this._iconObj.createShadow()},_addChild:function(e,t){this._iconNeedsUpdate=!0, this._boundsNeedUpdate=!0, this._setClusterCenter(e), e instanceof L.MarkerCluster?(t||(this._childClusters.push(e), e.__parent=this), this._childCount+=e._childCount):(t||this._markers.push(e), this._childCount++), this.__parent&&this.__parent._addChild(e,!0);},_setClusterCenter:function(e){this._cLatLng||(this._cLatLng=e._cLatLng||e._latlng);},_resetBounds:function(){var e=this._bounds;e._southWest&&(e._southWest.lat=1/0, e._southWest.lng=1/0), e._northEast&&(e._northEast.lat=-1/0, e._northEast.lng=-1/0);},_recalculateBounds:function(){var e,t,i,n,r=this._markers,s=this._childClusters,o=0,a=0,h=this._childCount;if(0!==h){for(this._resetBounds(), e=0;e<r.length;e++)i=r[e]._latlng, this._bounds.extend(i), o+=i.lat, a+=i.lng;for(e=0;e<s.length;e++)t=s[e], t._boundsNeedUpdate&&t._recalculateBounds(), this._bounds.extend(t._bounds), i=t._wLatLng, n=t._childCount, o+=i.lat*n, a+=i.lng*n;this._latlng=this._wLatLng=new L.LatLng(o/h,a/h), this._boundsNeedUpdate=!1;}},_addToMap:function(e){e&&(this._backupLatlng=this._latlng, this.setLatLng(e)), this._group._featureGroup.addLayer(this);},_recursivelyAnimateChildrenIn:function(e,t,i){this._recursively(e,this._group._map.getMinZoom(),i-1,function(e){var i,n,r=e._markers;for(i=r.length-1;i>=0;i--)n=r[i], n._icon&&(n._setPos(t), n.clusterHide());},function(e){var i,n,r=e._childClusters;for(i=r.length-1;i>=0;i--)n=r[i], n._icon&&(n._setPos(t), n.clusterHide());});},_recursivelyAnimateChildrenInAndAddSelfToMap:function(e,t,i,n){this._recursively(e,n,t,function(r){r._recursivelyAnimateChildrenIn(e,r._group._map.latLngToLayerPoint(r.getLatLng()).round(),i), r._isSingleParent()&&i-1===n?(r.clusterShow(), r._recursivelyRemoveChildrenFromMap(e,t,i)):r.clusterHide(), r._addToMap();});},_recursivelyBecomeVisible:function(e,t){this._recursively(e,this._group._map.getMinZoom(),t,null,function(e){e.clusterShow();});},_recursivelyAddChildrenToMap:function(e,t,i){this._recursively(i,this._group._map.getMinZoom()-1,t,function(n){if(t!==n._zoom)for(var r=n._markers.length-1;r>=0;r--){var s=n._markers[r];i.contains(s._latlng)&&(e&&(s._backupLatlng=s.getLatLng(), s.setLatLng(e), s.clusterHide&&s.clusterHide()), n._group._featureGroup.addLayer(s));}},function(t){t._addToMap(e);});},_recursivelyRestoreChildPositions:function(e){for(var t=this._markers.length-1;t>=0;t--){var i=this._markers[t];i._backupLatlng&&(i.setLatLng(i._backupLatlng), delete i._backupLatlng);}if(e-1===this._zoom)for(var n=this._childClusters.length-1;n>=0;n--)this._childClusters[n]._restorePosition();else for(var r=this._childClusters.length-1;r>=0;r--)this._childClusters[r]._recursivelyRestoreChildPositions(e);},_restorePosition:function(){this._backupLatlng&&(this.setLatLng(this._backupLatlng), delete this._backupLatlng);},_recursivelyRemoveChildrenFromMap:function(e,t,i,n){var r,s;this._recursively(e,t-1,i-1,function(e){for(s=e._markers.length-1;s>=0;s--)r=e._markers[s], n&&n.contains(r._latlng)||(e._group._featureGroup.removeLayer(r), r.clusterShow&&r.clusterShow());},function(e){for(s=e._childClusters.length-1;s>=0;s--)r=e._childClusters[s], n&&n.contains(r._latlng)||(e._group._featureGroup.removeLayer(r), r.clusterShow&&r.clusterShow());});},_recursively:function(e,t,i,n,r){var s,o,a=this._childClusters,h=this._zoom;if(h>=t&&(n&&n(this), r&&h===i&&r(this)), t>h||i>h)for(s=a.length-1;s>=0;s--)o=a[s], e.intersects(o._bounds)&&o._recursively(e,t,i,n,r);},_isSingleParent:function(){return this._childClusters.length>0&&this._childClusters[0]._childCount===this._childCount}}), L.Marker.include({clusterHide:function(){return this.options.opacityWhenUnclustered=this.options.opacity||1, this.setOpacity(0)},clusterShow:function(){var e=this.setOpacity(this.options.opacity||this.options.opacityWhenUnclustered);return delete this.options.opacityWhenUnclustered, e}}), L.DistanceGrid=function(e){this._cellSize=e, this._sqCellSize=e*e, this._grid={}, this._objectPoint={};}, L.DistanceGrid.prototype={addObject:function(e,t){var i=this._getCoord(t.x),n=this._getCoord(t.y),r=this._grid,s=r[n]=r[n]||{},o=s[i]=s[i]||[],a=L.Util.stamp(e);this._objectPoint[a]=t, o.push(e);},updateObject:function(e,t){this.removeObject(e), this.addObject(e,t);},removeObject:function(e,t){var i,n,r=this._getCoord(t.x),s=this._getCoord(t.y),o=this._grid,a=o[s]=o[s]||{},h=a[r]=a[r]||[];for(delete this._objectPoint[L.Util.stamp(e)], i=0, n=h.length;n>i;i++)if(h[i]===e)return h.splice(i,1), 1===n&&delete a[r], !0},eachObject:function(e,t){var i,n,r,s,o,a,h,l=this._grid;for(i in l){o=l[i];for(n in o)for(a=o[n], r=0, s=a.length;s>r;r++)h=e.call(t,a[r]), h&&(r--, s--);}},getNearObject:function(e){var t,i,n,r,s,o,a,h,l=this._getCoord(e.x),u=this._getCoord(e.y),_=this._objectPoint,d=this._sqCellSize,c=null;for(t=u-1;u+1>=t;t++)if(r=this._grid[t])for(i=l-1;l+1>=i;i++)if(s=r[i])for(n=0, o=s.length;o>n;n++)a=s[n], h=this._sqDist(_[L.Util.stamp(a)],e), d>h&&(d=h, c=a);return c},_getCoord:function(e){return Math.floor(e/this._cellSize)},_sqDist:function(e,t){var i=t.x-e.x,n=t.y-e.y;return i*i+n*n}}, function(){L.QuickHull={getDistant:function(e,t){var i=t[1].lat-t[0].lat,n=t[0].lng-t[1].lng;return n*(e.lat-t[0].lat)+i*(e.lng-t[0].lng)},findMostDistantPointFromBaseLine:function(e,t){var i,n,r,s=0,o=null,a=[];for(i=t.length-1;i>=0;i--)n=t[i], r=this.getDistant(n,e), r>0&&(a.push(n), r>s&&(s=r, o=n));return{maxPoint:o,newPoints:a}},buildConvexHull:function(e,t){var i=[],n=this.findMostDistantPointFromBaseLine(e,t);return n.maxPoint?(i=i.concat(this.buildConvexHull([e[0],n.maxPoint],n.newPoints)), i=i.concat(this.buildConvexHull([n.maxPoint,e[1]],n.newPoints))):[e[0]]},getConvexHull:function(e){var t,i=!1,n=!1,r=!1,s=!1,o=null,a=null,h=null,l=null,u=null,_=null;for(t=e.length-1;t>=0;t--){var d=e[t];(i===!1||d.lat>i)&&(o=d, i=d.lat), (n===!1||d.lat<n)&&(a=d, n=d.lat), (r===!1||d.lng>r)&&(h=d, r=d.lng), (s===!1||d.lng<s)&&(l=d, s=d.lng);}n!==i?(_=a, u=o):(_=l, u=h);var c=[].concat(this.buildConvexHull([_,u],e),this.buildConvexHull([u,_],e));return c}};}(), L.MarkerCluster.include({getConvexHull:function(){var e,t,i=this.getAllChildMarkers(),n=[];for(t=i.length-1;t>=0;t--)e=i[t].getLatLng(), n.push(e);return L.QuickHull.getConvexHull(n)}}), L.MarkerCluster.include({_2PI:2*Math.PI,_circleFootSeparation:25,_circleStartAngle:Math.PI/6,_spiralFootSeparation:28,_spiralLengthStart:11,_spiralLengthFactor:5,_circleSpiralSwitchover:9,spiderfy:function(){if(this._group._spiderfied!==this&&!this._group._inZoomAnimation){var e,t=this.getAllChildMarkers(),i=this._group,n=i._map,r=n.latLngToLayerPoint(this._latlng);this._group._unspiderfy(), this._group._spiderfied=this, t.length>=this._circleSpiralSwitchover?e=this._generatePointsSpiral(t.length,r):(r.y+=10, e=this._generatePointsCircle(t.length,r)), this._animationSpiderfy(t,e);}},unspiderfy:function(e){this._group._inZoomAnimation||(this._animationUnspiderfy(e), this._group._spiderfied=null);},_generatePointsCircle:function(e,t){var i,n,r=this._group.options.spiderfyDistanceMultiplier*this._circleFootSeparation*(2+e),s=r/this._2PI,o=this._2PI/e,a=[];for(a.length=e, i=e-1;i>=0;i--)n=this._circleStartAngle+i*o, a[i]=new L.Point(t.x+s*Math.cos(n),t.y+s*Math.sin(n))._round();return a},_generatePointsSpiral:function(e,t){var i,n=this._group.options.spiderfyDistanceMultiplier,r=n*this._spiralLengthStart,s=n*this._spiralFootSeparation,o=n*this._spiralLengthFactor*this._2PI,a=0,h=[];for(h.length=e, i=e-1;i>=0;i--)a+=s/r+5e-4*i, h[i]=new L.Point(t.x+r*Math.cos(a),t.y+r*Math.sin(a))._round(), r+=o/a;return h},_noanimationUnspiderfy:function(){var e,t,i=this._group,n=i._map,r=i._featureGroup,s=this.getAllChildMarkers();for(i._ignoreMove=!0, this.setOpacity(1), t=s.length-1;t>=0;t--)e=s[t], r.removeLayer(e), e._preSpiderfyLatlng&&(e.setLatLng(e._preSpiderfyLatlng), delete e._preSpiderfyLatlng), e.setZIndexOffset&&e.setZIndexOffset(0), e._spiderLeg&&(n.removeLayer(e._spiderLeg), delete e._spiderLeg);i.fire("unspiderfied",{cluster:this,markers:s}), i._ignoreMove=!1, i._spiderfied=null;}}), L.MarkerClusterNonAnimated=L.MarkerCluster.extend({_animationSpiderfy:function(e,t){var i,n,r,s,o=this._group,a=o._map,h=o._featureGroup,l=this._group.options.spiderLegPolylineOptions;for(o._ignoreMove=!0, i=0;i<e.length;i++)s=a.layerPointToLatLng(t[i]), n=e[i], r=new L.Polyline([this._latlng,s],l), a.addLayer(r), n._spiderLeg=r, n._preSpiderfyLatlng=n._latlng, n.setLatLng(s), n.setZIndexOffset&&n.setZIndexOffset(1e6), h.addLayer(n);this.setOpacity(.3), o._ignoreMove=!1, o.fire("spiderfied",{cluster:this,markers:e});},_animationUnspiderfy:function(){this._noanimationUnspiderfy();}}), L.MarkerCluster.include({_animationSpiderfy:function(e,t){var n,r,s,o,a,h,l=this,u=this._group,_=u._map,d=u._featureGroup,c=this._latlng,p=_.latLngToLayerPoint(c),f=L.Path.SVG,m=L.extend({},this._group.options.spiderLegPolylineOptions),g=m.opacity;for(g===i&&(g=L.MarkerClusterGroup.prototype.options.spiderLegPolylineOptions.opacity), f?(m.opacity=0, m.className=(m.className||"")+" leaflet-cluster-spider-leg"):m.opacity=g, u._ignoreMove=!0, n=0;n<e.length;n++)r=e[n], h=_.layerPointToLatLng(t[n]), s=new L.Polyline([c,h],m), _.addLayer(s), r._spiderLeg=s, f&&(o=s._path, a=o.getTotalLength()+.1, o.style.strokeDasharray=a, o.style.strokeDashoffset=a), r.setZIndexOffset&&r.setZIndexOffset(1e6), r.clusterHide&&r.clusterHide(), d.addLayer(r), r._setPos&&r._setPos(p);for(u._forceLayout(), u._animationStart(), n=e.length-1;n>=0;n--)h=_.layerPointToLatLng(t[n]), r=e[n], r._preSpiderfyLatlng=r._latlng, r.setLatLng(h), r.clusterShow&&r.clusterShow(), f&&(s=r._spiderLeg, o=s._path, o.style.strokeDashoffset=0, s.setStyle({opacity:g}));this.setOpacity(.3), u._ignoreMove=!1, setTimeout(function(){u._animationEnd(), u.fire("spiderfied",{cluster:l,markers:e});},200);},_animationUnspiderfy:function(e){var t,i,n,r,s,o,a=this,h=this._group,l=h._map,u=h._featureGroup,_=e?l._latLngToNewLayerPoint(this._latlng,e.zoom,e.center):l.latLngToLayerPoint(this._latlng),d=this.getAllChildMarkers(),c=L.Path.SVG;for(h._ignoreMove=!0, h._animationStart(), this.setOpacity(1), i=d.length-1;i>=0;i--)t=d[i], t._preSpiderfyLatlng&&(t.closePopup(), t.setLatLng(t._preSpiderfyLatlng), delete t._preSpiderfyLatlng, o=!0, t._setPos&&(t._setPos(_), o=!1), t.clusterHide&&(t.clusterHide(), o=!1), o&&u.removeLayer(t), c&&(n=t._spiderLeg, r=n._path, s=r.getTotalLength()+.1, r.style.strokeDashoffset=s, n.setStyle({opacity:0})));h._ignoreMove=!1, setTimeout(function(){var e=0;for(i=d.length-1;i>=0;i--)t=d[i], t._spiderLeg&&e++;for(i=d.length-1;i>=0;i--)t=d[i], t._spiderLeg&&(t.clusterShow&&t.clusterShow(), t.setZIndexOffset&&t.setZIndexOffset(0), e>1&&u.removeLayer(t), l.removeLayer(t._spiderLeg), delete t._spiderLeg);h._animationEnd(), h.fire("unspiderfied",{cluster:a,markers:d});},200);}}), L.MarkerClusterGroup.include({_spiderfied:null,unspiderfy:function(){this._unspiderfy.apply(this,arguments);},_spiderfierOnAdd:function(){this._map.on("click",this._unspiderfyWrapper,this), this._map.options.zoomAnimation&&this._map.on("zoomstart",this._unspiderfyZoomStart,this), this._map.on("zoomend",this._noanimationUnspiderfy,this), L.Browser.touch||this._map.getRenderer(this);},_spiderfierOnRemove:function(){this._map.off("click",this._unspiderfyWrapper,this), this._map.off("zoomstart",this._unspiderfyZoomStart,this), this._map.off("zoomanim",this._unspiderfyZoomAnim,this), this._map.off("zoomend",this._noanimationUnspiderfy,this), this._noanimationUnspiderfy();},_unspiderfyZoomStart:function(){this._map&&this._map.on("zoomanim",this._unspiderfyZoomAnim,this);},_unspiderfyZoomAnim:function(e){L.DomUtil.hasClass(this._map._mapPane,"leaflet-touching")||(this._map.off("zoomanim",this._unspiderfyZoomAnim,this), this._unspiderfy(e));},_unspiderfyWrapper:function(){this._unspiderfy();
+    },_unspiderfy:function(e){this._spiderfied&&this._spiderfied.unspiderfy(e);},_noanimationUnspiderfy:function(){this._spiderfied&&this._spiderfied._noanimationUnspiderfy();},_unspiderfyLayer:function(e){e._spiderLeg&&(this._featureGroup.removeLayer(e), e.clusterShow&&e.clusterShow(), e.setZIndexOffset&&e.setZIndexOffset(0), this._map.removeLayer(e._spiderLeg), delete e._spiderLeg);}}), L.MarkerClusterGroup.include({refreshClusters:function(e){return e?e instanceof L.MarkerClusterGroup?e=e._topClusterLevel.getAllChildMarkers():e instanceof L.LayerGroup?e=e._layers:e instanceof L.MarkerCluster?e=e.getAllChildMarkers():e instanceof L.Marker&&(e=[e]):e=this._topClusterLevel.getAllChildMarkers(), this._flagParentsIconsNeedUpdate(e), this._refreshClustersIcons(), this.options.singleMarkerMode&&this._refreshSingleMarkerModeMarkers(e), this},_flagParentsIconsNeedUpdate:function(e){var t,i;for(t in e)for(i=e[t].__parent;i;)i._iconNeedsUpdate=!0, i=i.__parent;},_refreshSingleMarkerModeMarkers:function(e){var t,i;for(t in e)i=e[t], this.hasLayer(i)&&i.setIcon(this._overrideMarkerIcon(i));}}), L.Marker.include({refreshIconOptions:function(e,t){var i=this.options.icon;return L.setOptions(i,e), this.setIcon(i), t&&this.__parent&&this.__parent._group.refreshClusters(this), this}});}(window,document);
+
+    var FeatureLayer$1 = esri.FeatureManager.extend({
 
       statics: {
         EVENTS: 'click dblclick mouseover mouseout mousemove contextmenu popupopen popupclose',
@@ -1005,14 +1013,14 @@
        */
 
       initialize: function initialize(options) {
-        L$1.esri.FeatureManager.prototype.initialize.call(this, options);
+        esri.FeatureManager.prototype.initialize.call(this, options);
 
-        options = L$1.setOptions(this, options);
+        options = leaflet.setOptions(this, options);
 
         this._layers = {};
         this._leafletIds = {};
 
-        this.cluster = L$1.markerClusterGroup(options);
+        this.cluster = L.markerClusterGroup(options);
         this._key = 'c' + (Math.random() * 1e9).toString(36).replace('.', '_');
 
         this.cluster.addEventParent(this);
@@ -1023,7 +1031,7 @@
        */
 
       onAdd: function onAdd(map) {
-        L$1.esri.FeatureManager.prototype.onAdd.call(this, map);
+        esri.FeatureManager.prototype.onAdd.call(this, map);
         this._map.addLayer(this.cluster);
 
         // NOTE !!!!!!!
@@ -1032,7 +1040,7 @@
       },
 
       onRemove: function onRemove(map) {
-        L$1.esri.FeatureManager.prototype.onRemove.call(this, map);
+        esri.FeatureManager.prototype.onRemove.call(this, map);
         this._map.removeLayer(this.cluster);
       },
 
@@ -1048,8 +1056,8 @@
           var layer = this._layers[geojson.id];
 
           if (!layer) {
-            var newLayer = L$1.GeoJSON.geometryToLayer(geojson, this.options);
-            newLayer.feature = L$1.GeoJSON.asFeature(geojson);
+            var newLayer = leaflet.GeoJSON.geometryToLayer(geojson, this.options);
+            newLayer.feature = leaflet.GeoJSON.asFeature(geojson);
             newLayer.defaultOptions = newLayer.options;
             newLayer._leaflet_id = this._key + '_' + geojson.id;
 
@@ -1223,7 +1231,7 @@
             if (style.shape === 'image') {
                 var width = style.width || 16;
                 var height = style.height || 16;
-                var icon = L$1.icon({
+                var icon = leaflet.icon({
                     iconUrl: style.content, //base64 encoded string
                     iconSize: [width, height],
                     iconAnchor: [width * 0.5, height * 0.5],
@@ -1231,9 +1239,9 @@
                 });
                 var mopts = { icon: icon };
                 if (GeoPlatformClient.Config.leafletPane) mopts.pane = GeoPlatformClient.Config.leafletPane;
-                marker = L$1.marker(latlng, mopts);
+                marker = leaflet.marker(latlng, mopts);
             } else {
-                marker = L$1.circleMarker(latlng, style);
+                marker = leaflet.circleMarker(latlng, style);
             }
 
             var popupTemplate = this.options.popupTemplate || featurePopupTemplate;
@@ -1261,8 +1269,8 @@
 
             if (GeoPlatformClient.Config.leafletPane) options.pane = GeoPlatformClient.Config.leafletPane;
 
-            options.pointToLayer = L$1.bind(this.pointToLayerFn, this);
-            options.onEachFeature = L$1.bind(this.eachFeatureFn, this);
+            options.pointToLayer = leaflet.bind(this.pointToLayerFn, this);
+            options.onEachFeature = leaflet.bind(this.eachFeatureFn, this);
             // options.fields = ['FID', 'type', 'title', 'geometry'];
 
             //Increase from 1 to increase the distance away from the center that spiderfied markers are placed.
@@ -1282,7 +1290,7 @@
             // must specify renderer and set desired pane on that
             var svgOpts = {};
             if (GeoPlatformClient.Config.leafletPane) svgOpts.pane = GeoPlatformClient.Config.leafletPane;
-            var renderer = L$1.SVG && L$1.svg(svgOpts) || L$1.Canvas && L$1.canvas();
+            var renderer = leaflet.SVG && leaflet.svg(svgOpts) || leaflet.Canvas && leaflet.canvas();
             options.renderer = renderer;
 
             FeatureLayer$1.prototype.initialize.call(this, options);
@@ -1392,7 +1400,7 @@
 
                     if (json && json.styles) {
 
-                        var styleFn = L$1.Util.bind(function (feature) {
+                        var styleFn = leaflet.Util.bind(function (feature) {
 
                             var property = this.property || this.field1;
                             var v = feature[property] || (feature.properties ? feature.properties[property] : null);
@@ -1514,7 +1522,7 @@
         return new ClusteredFeatureLayer(opts);
     }
 
-    var WMS = L$1.TileLayer.WMS.extend({
+    var WMS = leaflet.TileLayer.WMS.extend({
 
         enableGetFeatureInfo: function enableGetFeatureInfo() {
             this._map.on('click', this.getFeatureInfo, this);
@@ -1537,13 +1545,13 @@
 
             // Triggered when the layer is removed from a map.
             //   Unregister a click listener, then do all the upstream WMS things
-            L$1.TileLayer.WMS.prototype.onRemove.call(this, map);
+            leaflet.TileLayer.WMS.prototype.onRemove.call(this, map);
         },
 
         getFeatureInfo: function getFeatureInfo(evt) {
             // Make an AJAX request to the server and hope for the best
             var url = this.getFeatureInfoUrl(evt.latlng),
-                showResults = L$1.Util.bind(this.showGetFeatureInfo, this),
+                showResults = leaflet.Util.bind(this.showGetFeatureInfo, this),
                 parseGetFeatureInfo = this.parseGetFeatureInfo;
             jQuery.ajax({
                 url: url,
@@ -1578,7 +1586,7 @@
 
             // return this._url + Util.getParamString(params, this._url, true);
             var url = '/api/layers/' + this.wmsParams.wmvId + '/feature';
-            return GeoPlatformClient.Config.ualUrl + url + L$1.Util.getParamString(params, url, true);
+            return GeoPlatformClient.Config.ualUrl + url + leaflet.Util.getParamString(params, url, true);
         },
 
         parseGetFeatureInfo: function parseGetFeatureInfo(content) {
@@ -1596,7 +1604,7 @@
             } // do nothing if there's an error
 
             // Otherwise show the content in a popup, or something.
-            L$1.popup({ maxWidth: 800 }).setLatLng(latlng).setContent(content).openOn(this._map);
+            leaflet.popup({ maxWidth: 800 }).setLatLng(latlng).setContent(content).openOn(this._map);
         }
 
     });
@@ -1623,7 +1631,25 @@
         return new WMS(url, opts);
     }
 
-    var WMST = L$1.TimeDimension.Layer.WMS.extend({
+    /* 
+     * Leaflet TimeDimension v1.1.0 - 2017-10-13 
+     * 
+     * Copyright 2017 Biel Frontera (ICTS SOCIB) 
+     * datacenter@socib.es 
+     * http://www.socib.es/ 
+     * 
+     * Licensed under the MIT license. 
+     * 
+     * Demos: 
+     * http://apps.socib.es/Leaflet.TimeDimension/ 
+     * 
+     * Source: 
+     * git://github.com/socib/Leaflet.TimeDimension.git 
+     * 
+     */
+    L.TimeDimension=(L.Layer||L.Class).extend({includes:L.Evented||L.Mixin.Events,initialize:function(a){L.setOptions(this,a), this._availableTimes=this._generateAvailableTimes(), this._currentTimeIndex=-1, this._loadingTimeIndex=-1, this._loadingTimeout=this.options.loadingTimeout||3e3, this._syncedLayers=[], this._availableTimes.length>0&&this.setCurrentTime(this.options.currentTime||this._getDefaultCurrentTime()), this.options.lowerLimitTime&&this.setLowerLimit(this.options.lowerLimitTime), this.options.upperLimitTime&&this.setUpperLimit(this.options.upperLimitTime);},getAvailableTimes:function(){return this._availableTimes},getCurrentTimeIndex:function(){return-1===this._currentTimeIndex?this._availableTimes.length-1:this._currentTimeIndex},getCurrentTime:function(){var a=-1;return a=-1!==this._loadingTimeIndex?this._loadingTimeIndex:this.getCurrentTimeIndex(), a>=0?this._availableTimes[a]:null},isLoading:function(){return-1!==this._loadingTimeIndex},setCurrentTimeIndex:function(a){var b=this._upperLimit||this._availableTimes.length-1,c=this._lowerLimit||0;if(a=Math.min(Math.max(c,a),b), !(0>a)){this._loadingTimeIndex=a;var d=this._availableTimes[a];this._checkSyncedLayersReady(this._availableTimes[this._loadingTimeIndex])?this._newTimeIndexLoaded():(this.fire("timeloading",{time:d}), setTimeout(function(a){a==this._loadingTimeIndex&&this._newTimeIndexLoaded();}.bind(this,a),this._loadingTimeout));}},_newTimeIndexLoaded:function(){if(-1!==this._loadingTimeIndex){var a=this._availableTimes[this._loadingTimeIndex];this._currentTimeIndex=this._loadingTimeIndex, this.fire("timeload",{time:a}), this._loadingTimeIndex=-1;}},_checkSyncedLayersReady:function(a){for(var b=0,c=this._syncedLayers.length;c>b;b++)if(this._syncedLayers[b].isReady&&!this._syncedLayers[b].isReady(a))return!1;return!0},setCurrentTime:function(a){var b=this._seekNearestTimeIndex(a);this.setCurrentTimeIndex(b);},seekNearestTime:function(a){var b=this._seekNearestTimeIndex(a);return this._availableTimes[b]},nextTime:function(a,b){a||(a=1);var c=this._currentTimeIndex,d=this._upperLimit||this._availableTimes.length-1,e=this._lowerLimit||0;this._loadingTimeIndex>-1&&(c=this._loadingTimeIndex), c+=a, c>d&&(c=b?e:d), e>c&&(c=b?d:e), this.setCurrentTimeIndex(c);},prepareNextTimes:function(a,b,c){a||(a=1);var d=this._currentTimeIndex,e=d;this._loadingTimeIndex>-1&&(d=this._loadingTimeIndex);for(var f=0,g=this._syncedLayers.length;g>f;f++)this._syncedLayers[f].setMinimumForwardCache&&this._syncedLayers[f].setMinimumForwardCache(b);for(var h=b,i=this._upperLimit||this._availableTimes.length-1,j=this._lowerLimit||0;h>0;){if(d+=a, d>i){if(!c)break;d=j;}if(j>d){if(!c)break;d=i;}if(e===d)break;this.fire("timeloading",{time:this._availableTimes[d]}), h--;}},getNumberNextTimesReady:function(a,b,c){a||(a=1);var d=this._currentTimeIndex;this._loadingTimeIndex>-1&&(d=this._loadingTimeIndex);for(var e=b,f=0,g=this._upperLimit||this._availableTimes.length-1,h=this._lowerLimit||0;e>0;){if(d+=a, d>g){if(!c){e=0, f=b;break}d=h;}if(h>d){if(!c){e=0, f=b;break}d=g;}var i=this._availableTimes[d];this._checkSyncedLayersReady(i)&&f++, e--;}return f},previousTime:function(a,b){this.nextTime(-1*a,b);},registerSyncedLayer:function(a){this._syncedLayers.push(a), a.on("timeload",this._onSyncedLayerLoaded,this);},unregisterSyncedLayer:function(a){var b=this._syncedLayers.indexOf(a);-1!=b&&this._syncedLayers.splice(b,1), a.off("timeload",this._onSyncedLayerLoaded,this);},_onSyncedLayerLoaded:function(a){a.time==this._availableTimes[this._loadingTimeIndex]&&this._checkSyncedLayersReady(a.time)&&this._newTimeIndexLoaded();},_generateAvailableTimes:function(){if(this.options.times)return L.TimeDimension.Util.parseTimesExpression(this.options.times);if(this.options.timeInterval){var a=L.TimeDimension.Util.parseTimeInterval(this.options.timeInterval),b=this.options.period||"P1D",c=this.options.validTimeRange||void 0;return L.TimeDimension.Util.explodeTimeRange(a[0],a[1],b,c)}return[]},_getDefaultCurrentTime:function(){var a=this._seekNearestTimeIndex((new Date).getTime());return this._availableTimes[a]},_seekNearestTimeIndex:function(a){for(var b=0,c=this._availableTimes.length;c>b&&!(a<this._availableTimes[b]);b++);return b>0&&b--, b},setAvailableTimes:function(a,b){var c=this.getCurrentTime(),d=this.getLowerLimit(),e=this.getUpperLimit();if("extremes"==b){var f=this.options.period||"P1D";this._availableTimes=L.TimeDimension.Util.explodeTimeRange(new Date(a[0]),new Date(a[a.length-1]),f);}else{var g=L.TimeDimension.Util.parseTimesExpression(a);if(0===this._availableTimes.length)this._availableTimes=g;else if("intersect"==b)this._availableTimes=L.TimeDimension.Util.intersect_arrays(g,this._availableTimes);else if("union"==b)this._availableTimes=L.TimeDimension.Util.union_arrays(g,this._availableTimes);else{if("replace"!=b)throw"Merge available times mode not implemented: "+b;this._availableTimes=g;}}d&&this.setLowerLimit(d), e&&this.setUpperLimit(e), this.setCurrentTime(c), this.fire("availabletimeschanged",{availableTimes:this._availableTimes,currentTime:c});},getLowerLimit:function(){return this._availableTimes[this.getLowerLimitIndex()]},getUpperLimit:function(){return this._availableTimes[this.getUpperLimitIndex()]},setLowerLimit:function(a){var b=this._seekNearestTimeIndex(a);this.setLowerLimitIndex(b);},setUpperLimit:function(a){var b=this._seekNearestTimeIndex(a);this.setUpperLimitIndex(b);},setLowerLimitIndex:function(a){this._lowerLimit=Math.min(Math.max(a||0,0),this._upperLimit||this._availableTimes.length-1), this.fire("limitschanged",{lowerLimit:this._lowerLimit,upperLimit:this._upperLimit});},setUpperLimitIndex:function(a){this._upperLimit=Math.max(Math.min(a,this._availableTimes.length-1),this._lowerLimit||0), this.fire("limitschanged",{lowerLimit:this._lowerLimit,upperLimit:this._upperLimit});},getLowerLimitIndex:function(){return this._lowerLimit},getUpperLimitIndex:function(){return this._upperLimit}}), L.Map.addInitHook(function(){this.options.timeDimension&&(this.timeDimension=L.timeDimension(this.options.timeDimensionOptions||{}));}), L.timeDimension=function(a){return new L.TimeDimension(a)}, L.TimeDimension.Util={getTimeDuration:function(a){if("undefined"==typeof nezasa)throw"iso8601-js-period library is required for Leatlet.TimeDimension: https://github.com/nezasa/iso8601-js-period";return nezasa.iso8601.Period.parse(a,!0)},addTimeDuration:function(a,b,c){"undefined"==typeof c&&(c=!0), ("string"==typeof b||b instanceof String)&&(b=this.getTimeDuration(b));var d=b.length,e=c?"getUTC":"get",f=c?"setUTC":"set";d>0&&0!=b[0]&&a[f+"FullYear"](a[e+"FullYear"]()+b[0]), d>1&&0!=b[1]&&a[f+"Month"](a[e+"Month"]()+b[1]), d>2&&0!=b[2]&&a[f+"Date"](a[e+"Date"]()+7*b[2]), d>3&&0!=b[3]&&a[f+"Date"](a[e+"Date"]()+b[3]), d>4&&0!=b[4]&&a[f+"Hours"](a[e+"Hours"]()+b[4]), d>5&&0!=b[5]&&a[f+"Minutes"](a[e+"Minutes"]()+b[5]), d>6&&0!=b[6]&&a[f+"Seconds"](a[e+"Seconds"]()+b[6]);},subtractTimeDuration:function(a,b,c){("string"==typeof b||b instanceof String)&&(b=this.getTimeDuration(b));for(var d=[],e=0,f=b.length;f>e;e++)d.push(-b[e]);this.addTimeDuration(a,d,c);},parseAndExplodeTimeRange:function(a){var b=a.split("/"),c=new Date(Date.parse(b[0])),d=new Date(Date.parse(b[1])),e=b.length>2?b[2]:"P1D";return this.explodeTimeRange(c,d,e)},explodeTimeRange:function(a,b,c,d){var e=this.getTimeDuration(c),f=[],g=new Date(a.getTime()),h=null,i=null,j=null,k=null;if(void 0!==d){var l=d.split("/");h=l[0].split(":")[0], i=l[0].split(":")[1], j=l[1].split(":")[0], k=l[1].split(":")[1];}for(;b>g;)(void 0===d||g.getUTCHours()>=h&&g.getUTCHours()<=j)&&(g.getUTCHours()!=h||g.getUTCMinutes()>=i)&&(g.getUTCHours()!=j||g.getUTCMinutes()<=k)&&f.push(g.getTime()), this.addTimeDuration(g,e);return g>=b&&f.push(b.getTime()), f},parseTimeInterval:function(a){var b=a.split("/");if(2!=b.length)throw"Incorrect ISO9601 TimeInterval: "+a;var c=Date.parse(b[0]),d=null,e=null;return isNaN(c)?(e=this.getTimeDuration(b[0]), d=Date.parse(b[1]), c=new Date(d), this.subtractTimeDuration(c,e,!0), d=new Date(d)):(d=Date.parse(b[1]), isNaN(d)?(e=this.getTimeDuration(b[1]), d=new Date(c), this.addTimeDuration(d,e,!0)):d=new Date(d), c=new Date(c)), [c,d]},parseTimesExpression:function(a){var b=[];if(!a)return b;if("string"==typeof a||a instanceof String)for(var c,d,e=a.split(","),f=0,g=e.length;g>f;f++)c=e[f], 3==c.split("/").length?b=b.concat(this.parseAndExplodeTimeRange(c)):(d=Date.parse(c), isNaN(d)||b.push(d));else b=a;return b.sort(function(a,b){return a-b})},intersect_arrays:function(a,b){for(var c=a.slice(0),d=b.slice(0),e=[];c.length>0&&d.length>0;)c[0]<d[0]?c.shift():c[0]>d[0]?d.shift():(e.push(c.shift()), d.shift());return e},union_arrays:function(a,b){for(var c=a.slice(0),d=b.slice(0),e=[];c.length>0&&d.length>0;)c[0]<d[0]?e.push(c.shift()):c[0]>d[0]?e.push(d.shift()):(e.push(c.shift()), d.shift());return c.length>0?e=e.concat(c):d.length>0&&(e=e.concat(d)), e}}, L.TimeDimension.Layer=(L.Layer||L.Class).extend({includes:L.Evented||L.Mixin.Events,options:{opacity:1,zIndex:1},initialize:function(a,b){L.setOptions(this,b||{}), this._map=null, this._baseLayer=a, this._currentLayer=null, this._timeDimension=this.options.timeDimension||null;},addTo:function(a){return a.addLayer(this), this},onAdd:function(a){this._map=a, !this._timeDimension&&a.timeDimension&&(this._timeDimension=a.timeDimension), this._timeDimension.on("timeloading",this._onNewTimeLoading,this), this._timeDimension.on("timeload",this._update,this), this._timeDimension.registerSyncedLayer(this), this._update();},onRemove:function(a){this._timeDimension.unregisterSyncedLayer(this), this._timeDimension.off("timeloading",this._onNewTimeLoading,this), this._timeDimension.off("timeload",this._update,this), this.eachLayer(a.removeLayer,a), this._map=null;},eachLayer:function(a,b){return a.call(b,this._baseLayer), this},setZIndex:function(a){return this.options.zIndex=a, this._baseLayer.setZIndex&&this._baseLayer.setZIndex(a), this._currentLayer&&this._currentLayer.setZIndex&&this._currentLayer.setZIndex(a), this},setOpacity:function(a){return this.options.opacity=a, this._baseLayer.setOpacity&&this._baseLayer.setOpacity(a), this._currentLayer&&this._currentLayer.setOpacity&&this._currentLayer.setOpacity(a), this},bringToBack:function(){return this._currentLayer?(this._currentLayer.bringToBack(), this):void 0},bringToFront:function(){return this._currentLayer?(this._currentLayer.bringToFront(), this):void 0},_onNewTimeLoading:function(a){this.fire("timeload",{time:a.time});},isReady:function(a){return!0},_update:function(){return!0},getBaseLayer:function(){return this._baseLayer},getBounds:function(){var a=new L.LatLngBounds;return this._currentLayer&&a.extend(this._currentLayer.getBounds?this._currentLayer.getBounds():this._currentLayer.getLatLng()), a}}), L.timeDimension.layer=function(a,b){return new L.TimeDimension.Layer(a,b)}, L.TimeDimension.Layer.WMS=L.TimeDimension.Layer.extend({initialize:function(a,b){L.TimeDimension.Layer.prototype.initialize.call(this,a,b), this._timeCacheBackward=this.options.cacheBackward||this.options.cache||0, this._timeCacheForward=this.options.cacheForward||this.options.cache||0, this._wmsVersion=this.options.wmsVersion||this.options.version||a.options.version||"1.1.1", this._getCapabilitiesParams=this.options.getCapabilitiesParams||{}, this._getCapabilitiesAlternateUrl=this.options.getCapabilitiesUrl||null, this._getCapabilitiesAlternateLayerName=this.options.getCapabilitiesLayerName||null, this._proxy=this.options.proxy||null, this._updateTimeDimension=this.options.updateTimeDimension||!1, this._setDefaultTime=this.options.setDefaultTime||!1, this._updateTimeDimensionMode=this.options.updateTimeDimensionMode||"intersect", this._layers={}, this._defaultTime=0, this._availableTimes=[], this._capabilitiesRequested=!1, (this._updateTimeDimension||this.options.requestTimeFromCapabilities)&&this._requestTimeDimensionFromCapabilities(), this._baseLayer.on("load",function(){this._baseLayer.setLoaded(!0), this.fire("timeload",{time:this._defaultTime});}.bind(this));},getEvents:function(){var a=L.bind(this._unvalidateCache,this);return{moveend:a,zoomend:a}},eachLayer:function(a,b){for(var c in this._layers)this._layers.hasOwnProperty(c)&&a.call(b,this._layers[c]);return L.TimeDimension.Layer.prototype.eachLayer.call(this,a,b)},_onNewTimeLoading:function(a){var b=this._getLayerForTime(a.time);this._map.hasLayer(b)||this._map.addLayer(b);},isReady:function(a){var b=this._getLayerForTime(a);return this.options.bounds&&this._map&&!this._map.getBounds().contains(this.options.bounds)?!0:b.isLoaded()},onAdd:function(a){L.TimeDimension.Layer.prototype.onAdd.call(this,a), 0==this._availableTimes.length?this._requestTimeDimensionFromCapabilities():this._updateTimeDimensionAvailableTimes();},_update:function(){if(this._map){var a=this._timeDimension.getCurrentTime(),b=this._getLayerForTime(a);null==this._currentLayer&&(this._currentLayer=b), this._map.hasLayer(b)?this._showLayer(b,a):this._map.addLayer(b);}},setOpacity:function(a){L.TimeDimension.Layer.prototype.setOpacity.apply(this,arguments);for(var b in this._layers)this._layers.hasOwnProperty(b)&&this._layers[b].setOpacity&&this._layers[b].setOpacity(a);},setZIndex:function(a){L.TimeDimension.Layer.prototype.setZIndex.apply(this,arguments);for(var b in this._layers)this._layers.hasOwnProperty(b)&&this._layers[b].setZIndex&&this._layers[b].setZIndex(a);},setParams:function(a,b){L.extend(this._baseLayer.options,a), this._baseLayer.setParams&&this._baseLayer.setParams(a,b);for(var c in this._layers)this._layers.hasOwnProperty(c)&&this._layers[c].setParams&&(this._layers[c].setLoaded(!1), this._layers[c].setParams(a,b));return this},_unvalidateCache:function(){var a=this._timeDimension.getCurrentTime();for(var b in this._layers)a!=b&&this._layers.hasOwnProperty(b)&&(this._layers[b].setLoaded(!1), this._layers[b].redraw());},_evictCachedTimes:function(a,b){var c=this._getLoadedTimes(),d=String(this._currentTime),e=c.indexOf(d),f=[];if(b>-1){var g=e-b;g>0&&(f=c.splice(0,g), this._removeLayers(f));}if(a>-1){e=c.indexOf(d);var g=c.length-e-a-1;g>0&&(f=c.splice(e+a+1,g), this._removeLayers(f));}},_showLayer:function(a,b){this._currentLayer&&this._currentLayer!==a&&this._currentLayer.hide(), a.show(), this._currentLayer&&this._currentLayer===a||(this._currentLayer=a, this._currentTime=b, this._evictCachedTimes(this._timeCacheForward,this._timeCacheBackward));},_getLayerForTime:function(a){if(0==a||a==this._defaultTime||null==a)return this._baseLayer;if(this._layers.hasOwnProperty(a))return this._layers[a];var b=this._getNearestTime(a);if(this._layers.hasOwnProperty(b))return this._layers[b];var c=this._createLayerForTime(b);return this._layers[a]=c, c.on("load",function(a,b){a.setLoaded(!0), this._layers[b]||(this._layers[b]=a), this._timeDimension&&b==this._timeDimension.getCurrentTime()&&!this._timeDimension.isLoading()&&this._showLayer(a,b), this.fire("timeload",{time:b});}.bind(this,c,a)), c.onAdd=function(a){Object.getPrototypeOf(this).onAdd.call(this,a), this.hide();}.bind(c), c},_createLayerForTime:function(a){var b=this._baseLayer.options;return b.time=new Date(a).toISOString(), new this._baseLayer.constructor(this._baseLayer.getURL(),b)},_getLoadedTimes:function(){var a=[];for(var b in this._layers)this._layers.hasOwnProperty(b)&&a.push(b);return a.sort(function(a,b){return a-b})},_removeLayers:function(a){for(var b=0,c=a.length;c>b;b++)this._map&&this._map.removeLayer(this._layers[a[b]]), delete this._layers[a[b]];},setMinimumForwardCache:function(a){a>this._timeCacheForward&&(this._timeCacheForward=a);},_requestTimeDimensionFromCapabilities:function(){if(!this._capabilitiesRequested){this._capabilitiesRequested=!0;var a=this._getCapabilitiesUrl();this._proxy&&(a=this._proxy+"?url="+encodeURIComponent(a));var b=new XMLHttpRequest;b.addEventListener("load",function(a){var b=a.currentTarget.responseXML;this._defaultTime=Date.parse(this._getDefaultTimeFromCapabilities(b)), this._setDefaultTime=this._setDefaultTime||this._timeDimension&&0==this._timeDimension.getAvailableTimes().length, this.setAvailableTimes(this._parseTimeDimensionFromCapabilities(b)), this._setDefaultTime&&this._timeDimension&&this._timeDimension.setCurrentTime(this._defaultTime);}.bind(this)), b.overrideMimeType("application/xml"), b.open("GET",a), b.send();}},_getCapabilitiesUrl:function(){var a=this._baseLayer.getURL();this._getCapabilitiesAlternateUrl&&(a=this._getCapabilitiesAlternateUrl);var b=L.extend({},this._getCapabilitiesParams,{request:"GetCapabilities",service:"WMS",version:this._wmsVersion});return a+=L.Util.getParamString(b,a,b.uppercase)},_parseTimeDimensionFromCapabilities:function(a){var b=a.querySelectorAll('Layer[queryable="1"]'),c=this._baseLayer.wmsParams.layers,d=null,e=null;return b.forEach(function(a){a.querySelector("Name").innerHTML===c&&(d=a);}), d&&(e=this._getTimesFromLayerCapabilities(d), e||(e=this._getTimesFromLayerCapabilities(d.parentNode))), e},_getTimesFromLayerCapabilities:function(a){var b=null,c=a.querySelectorAll("Dimension[name='time']");if(c&&c.length&&c[0].textContent.length)b=c[0].textContent.trim();else{var d=a.querySelectorAll("Extent[name='time']");d&&d.length&&d[0].textContent.length&&(b=d[0].textContent.trim());}return b},_getDefaultTimeFromCapabilities:function(a){var b=a.querySelectorAll('Layer[queryable="1"]'),c=this._baseLayer.wmsParams.layers,d=null;b.forEach(function(a){a.querySelector("Name").innerHTML===c&&(d=a);});var e=0;return d&&(e=this._getDefaultTimeFromLayerCapabilities(d), 0==e&&(e=this._getDefaultTimeFromLayerCapabilities(d.parentNode))), e},_getDefaultTimeFromLayerCapabilities:function(a){var b=0,c=a.querySelectorAll("Dimension[name='time']");if(c&&c.length&&c[0].attributes["default"])b=c[0].attributes["default"];else{var d=a.querySelectorAll("Extent[name='time']");d&&d.length&&d[0].attributes["default"]&&(b=d[0].attributes["default"]);}return b},setAvailableTimes:function(a){this._availableTimes=L.TimeDimension.Util.parseTimesExpression(a), this._updateTimeDimensionAvailableTimes();},_updateTimeDimensionAvailableTimes:function(){(this._timeDimension&&this._updateTimeDimension||this._timeDimension&&0==this._timeDimension.getAvailableTimes().length)&&(this._timeDimension.setAvailableTimes(this._availableTimes,this._updateTimeDimensionMode), this._setDefaultTime&&this._defaultTime>0&&this._timeDimension.setCurrentTime(this._defaultTime));},_getNearestTime:function(a){if(this._layers.hasOwnProperty(a))return a;if(0==this._availableTimes.length)return a;for(var b=0,c=this._availableTimes.length;c>b&&!(a<this._availableTimes[b]);b++);return b>0&&b--, a!=this._availableTimes[b], this._availableTimes[b]}}), L.NonTiledLayer||(L.NonTiledLayer=(L.Layer||L.Class).extend({})), L.NonTiledLayer.include({_visible:!0,_loaded:!1,_originalUpdate:L.NonTiledLayer.prototype._update,_originalOnRemove:L.NonTiledLayer.prototype.onRemove,_update:function(){(this._visible||!this._loaded)&&this._originalUpdate();},onRemove:function(a){this._loaded=!1, this._originalOnRemove(a);},setLoaded:function(a){this._loaded=a;},isLoaded:function(){return this._loaded},hide:function(){this._visible=!1, this._div.style.display="none";},show:function(){this._visible=!0, this._div.style.display="block";},getURL:function(){return this._wmsUrl}}), L.TileLayer.include({_visible:!0,_loaded:!1,_originalUpdate:L.TileLayer.prototype._update,_update:function(){(this._visible||!this._loaded)&&this._originalUpdate();},setLoaded:function(a){this._loaded=a;},isLoaded:function(){return this._loaded},hide:function(){this._visible=!1, this._container&&(this._container.style.display="none");},show:function(){this._visible=!0, this._container&&(this._container.style.display="block");},getURL:function(){return this._url}}), L.timeDimension.layer.wms=function(a,b){return new L.TimeDimension.Layer.WMS(a,b)}, L.TimeDimension.Layer.GeoJson=L.TimeDimension.Layer.extend({initialize:function(a,b){L.TimeDimension.Layer.prototype.initialize.call(this,a,b), this._updateTimeDimension=this.options.updateTimeDimension||!1, this._updateTimeDimensionMode=this.options.updateTimeDimensionMode||"extremes", this._duration=this.options.duration||null, this._addlastPoint=this.options.addlastPoint||!1, this._waitForReady=this.options.waitForReady||!1, this._defaultTime=0, this._availableTimes=[], this._loaded=!1, 0==this._baseLayer.getLayers().length?this._waitForReady?this._baseLayer.on("ready",this._onReadyBaseLayer,this):this._loaded=!0:(this._loaded=!0, this._setAvailableTimes()), this._baseLayer.on("layeradd",function(){this._loaded&&this._setAvailableTimes();}.bind(this));},onAdd:function(a){L.TimeDimension.Layer.prototype.onAdd.call(this,a), this._loaded&&this._setAvailableTimes();},eachLayer:function(a,b){return this._currentLayer&&a.call(b,this._currentLayer), L.TimeDimension.Layer.prototype.eachLayer.call(this,a,b)},isReady:function(a){return this._loaded},_update:function(){if(this._map&&this._loaded){var a=(this._timeDimension.getCurrentTime(), this._timeDimension.getCurrentTime()),b=0;if(this._duration){var c=new Date(a);L.TimeDimension.Util.subtractTimeDuration(c,this._duration,!0), b=c.getTime();}for(var d=L.geoJson(null,this._baseLayer.options),e=this._baseLayer.getLayers(),f=0,g=e.length;g>f;f++){var h=this._getFeatureBetweenDates(e[f].feature,b,a);if(h&&(d.addData(h), this._addlastPoint&&"LineString"==h.geometry.type&&h.geometry.coordinates.length>0)){var i=h.properties;i.last=!0, d.addData({type:"Feature",properties:i,geometry:{type:"Point",coordinates:h.geometry.coordinates[h.geometry.coordinates.length-1]}});}}this._currentLayer&&this._map.removeLayer(this._currentLayer), d.getLayers().length&&(d.addTo(this._map), this._currentLayer=d);}},_setAvailableTimes:function(){var a=[];this._availableTimes=[];for(var b=this._baseLayer.getLayers(),c=0,d=b.length;d>c;c++)b[c].feature&&(a=L.TimeDimension.Util.union_arrays(a,this._getFeatureTimes(b[c].feature)));for(var c=0,d=a.length;d>c;c++){var e=a[c];("string"==typeof e||e instanceof String)&&(e=Date.parse(e.trim())), this._availableTimes.push(e);}this._timeDimension&&(this._updateTimeDimension||0==this._timeDimension.getAvailableTimes().length)&&this._timeDimension.setAvailableTimes(this._availableTimes,this._updateTimeDimensionMode);},_getFeatureTimes:function(a){return a.properties?a.properties.hasOwnProperty("coordTimes")?a.properties.coordTimes:a.properties.hasOwnProperty("times")?a.properties.times:a.properties.hasOwnProperty("linestringTimestamps")?a.properties.linestringTimestamps:a.properties.hasOwnProperty("time")?[a.properties.time]:[]:[]},_getFeatureBetweenDates:function(a,b,c){var d=this._getFeatureTimes(a);if(0==d.length)return a;for(var e=[],f=0,g=d.length;g>f;f++){var h=d[f];("string"==typeof h||h instanceof String)&&(h=Date.parse(h.trim())), e.push(h);}if(e[0]>c||e[g-1]<b)return null;var i=null,j=null,g=e.length;if(e[g-1]>b)for(var f=0;g>f;f++)if(null===i&&e[f]>b&&(i=f), e[f]>c){j=f;break}null===i&&(i=0), null===j&&(j=g);var k=[];return k=a.geometry.coordinates[0].length?a.geometry.coordinates.slice(i,j):a.geometry.coordinates, {type:"Feature",properties:a.properties,geometry:{type:a.geometry.type,coordinates:k}}},_onReadyBaseLayer:function(){this._loaded=!0, this._setAvailableTimes(), this._update();}}), L.timeDimension.layer.geoJson=function(a,b){return new L.TimeDimension.Layer.GeoJson(a,b)}, L.TimeDimension.Player=(L.Layer||L.Class).extend({includes:L.Evented||L.Mixin.Events,initialize:function(a,b){L.setOptions(this,a), this._timeDimension=b, this._paused=!1, this._buffer=this.options.buffer||5, this._minBufferReady=this.options.minBufferReady||1, this._waitingForBuffer=!1, this._loop=this.options.loop||!1, this._steps=1, this._timeDimension.on("timeload",function(a){this.release(), this._waitingForBuffer=!1;}.bind(this)), this.setTransitionTime(this.options.transitionTime||1e3), this._timeDimension.on("limitschanged availabletimeschanged timeload",function(a){this._timeDimension.prepareNextTimes(this._steps,this._minBufferReady,this._loop);}.bind(this));},_tick:function(){var a=this._getMaxIndex(),b=this._timeDimension.getCurrentTimeIndex()>=a&&this._steps>0,c=0==this._timeDimension.getCurrentTimeIndex()&&this._steps<0;if((b||c)&&!this._loop)return this.pause(), this.stop(), void this.fire("animationfinished");if(!this._paused){var d=0,e=this._bufferSize;if(this._minBufferReady>0)if(d=this._timeDimension.getNumberNextTimesReady(this._steps,e,this._loop), this._waitingForBuffer){if(e>d)return void this.fire("waiting",{buffer:e,available:d});this.fire("running"), this._waitingForBuffer=!1;}else if(d<this._minBufferReady)return this._waitingForBuffer=!0, this._timeDimension.prepareNextTimes(this._steps,e,this._loop), void this.fire("waiting",{buffer:e,available:d});this.pause(), this._timeDimension.nextTime(this._steps,this._loop), e>0&&this._timeDimension.prepareNextTimes(this._steps,e,this._loop);}},_getMaxIndex:function(){return Math.min(this._timeDimension.getAvailableTimes().length-1,this._timeDimension.getUpperLimitIndex()||1/0)},start:function(a){this._intervalID||(this._steps=a||1, this._waitingForBuffer=!1, this.options.startOver&&this._timeDimension.getCurrentTimeIndex()===this._getMaxIndex()&&this._timeDimension.setCurrentTimeIndex(this._timeDimension.getLowerLimitIndex()||0), this.release(), this._intervalID=window.setInterval(L.bind(this._tick,this),this._transitionTime), this._tick(), this.fire("play"), this.fire("running"));},stop:function(){this._intervalID&&(clearInterval(this._intervalID), this._intervalID=null, this._waitingForBuffer=!1, this.fire("stop"));},pause:function(){this._paused=!0;},release:function(){this._paused=!1;},getTransitionTime:function(){return this._transitionTime},isPlaying:function(){return this._intervalID?!0:!1},isWaiting:function(){return this._waitingForBuffer},isLooped:function(){return this._loop},setLooped:function(a){this._loop=a, this.fire("loopchange",{loop:a});},setTransitionTime:function(a){this._transitionTime=a, "function"==typeof this._buffer?this._bufferSize=this._buffer.call(this,this._transitionTime,this._minBufferReady,this._loop):this._bufferSize=this._buffer, this._intervalID&&(this.stop(), this.start(this._steps)), this.fire("speedchange",{transitionTime:a,buffer:this._bufferSize});},getSteps:function(){return this._steps}}), L.UI=L.ui=L.UI||{}, L.UI.Knob=L.Draggable.extend({options:{className:"knob",step:1,rangeMin:0,rangeMax:10},initialize:function(a,b){L.setOptions(this,b), this._element=L.DomUtil.create("div",this.options.className||"knob",a), L.Draggable.prototype.initialize.call(this,this._element,this._element), this._container=a, this.on("predrag",function(){this._newPos.y=0, this._newPos.x=this._adjustX(this._newPos.x);},this), this.on("dragstart",function(){L.DomUtil.addClass(a,"dragging");}), this.on("dragend",function(){L.DomUtil.removeClass(a,"dragging");}), L.DomEvent.on(this._element,"dblclick",function(a){this.fire("dblclick",a);},this), L.DomEvent.disableClickPropagation(this._element), this.enable();},_getProjectionCoef:function(){return(this.options.rangeMax-this.options.rangeMin)/(this._container.offsetWidth||this._container.style.width)},_update:function(){this.setPosition(L.DomUtil.getPosition(this._element).x);},_adjustX:function(a){var b=this._toValue(a)||this.getMinValue();return this._toX(this._adjustValue(b))},_adjustValue:function(a){return a=Math.max(this.getMinValue(),Math.min(this.getMaxValue(),a)), a-=this.options.rangeMin, a=Math.round(a/this.options.step)*this.options.step, a+=this.options.rangeMin, a=Math.round(100*a)/100},_toX:function(a){var b=(a-this.options.rangeMin)/this._getProjectionCoef();return b},_toValue:function(a){var b=a*this._getProjectionCoef()+this.options.rangeMin;return b},getMinValue:function(){return this.options.minValue||this.options.rangeMin},getMaxValue:function(){return this.options.maxValue||this.options.rangeMax},setStep:function(a){this.options.step=a, this._update();},setPosition:function(a){L.DomUtil.setPosition(this._element,L.point(this._adjustX(a),0)), this.fire("positionchanged");},getPosition:function(){return L.DomUtil.getPosition(this._element).x},setValue:function(a){this.setPosition(this._toX(a));},getValue:function(){return this._adjustValue(this._toValue(this.getPosition()))}}), L.Control.TimeDimension=L.Control.extend({options:{styleNS:"leaflet-control-timecontrol",position:"bottomleft",title:"Time Control",backwardButton:!0,forwardButton:!0,playButton:!0,playReverseButton:!1,loopButton:!1,displayDate:!0,timeSlider:!0,timeSliderDragUpdate:!1,limitSliders:!1,limitMinimumRange:5,speedSlider:!0,minSpeed:.1,maxSpeed:10,speedStep:.1,timeSteps:1,autoPlay:!1,playerOptions:{transitionTime:1e3}},initialize:function(a){L.Control.prototype.initialize.call(this,a), this._dateUTC=!0, this._timeDimension=this.options.timeDimension||null;},onAdd:function(a){var b;return this._map=a, !this._timeDimension&&a.timeDimension&&(this._timeDimension=a.timeDimension), this._initPlayer(), b=L.DomUtil.create("div","leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol"), this.options.backwardButton&&(this._buttonBackward=this._createButton("Backward",b)), this.options.playReverseButton&&(this._buttonPlayReversePause=this._createButton("Play Reverse",b)), this.options.playButton&&(this._buttonPlayPause=this._createButton("Play",b)), this.options.forwardButton&&(this._buttonForward=this._createButton("Forward",b)), this.options.loopButton&&(this._buttonLoop=this._createButton("Loop",b)), this.options.displayDate&&(this._displayDate=this._createButton("Date",b)), this.options.timeSlider&&(this._sliderTime=this._createSliderTime(this.options.styleNS+" timecontrol-slider timecontrol-dateslider",b)), this.options.speedSlider&&(this._sliderSpeed=this._createSliderSpeed(this.options.styleNS+" timecontrol-slider timecontrol-speed",b)), this._steps=this.options.timeSteps||1, this._timeDimension.on("timeload",this._update,this), this._timeDimension.on("timeload",this._onPlayerStateChange,this), this._timeDimension.on("timeloading",this._onTimeLoading,this), this._timeDimension.on("limitschanged availabletimeschanged",this._onTimeLimitsChanged,this), L.DomEvent.disableClickPropagation(b), b},addTo:function(){return L.Control.prototype.addTo.apply(this,arguments), this._onPlayerStateChange(), this._onTimeLimitsChanged(), this._update(), this},onRemove:function(){this._player.off("play stop running loopchange speedchange",this._onPlayerStateChange,this), this._player.off("waiting",this._onPlayerWaiting,this), this._timeDimension.off("timeload",this._update,this), this._timeDimension.off("timeload",this._onPlayerStateChange,this), this._timeDimension.off("timeloading",this._onTimeLoading,this), this._timeDimension.off("limitschanged availabletimeschanged",this._onTimeLimitsChanged,this);},_initPlayer:function(){this._player||(this.options.player?this._player=this.options.player:this._player=new L.TimeDimension.Player(this.options.playerOptions,this._timeDimension)), this.options.autoPlay&&this._player.start(this._steps), this._player.on("play stop running loopchange speedchange",this._onPlayerStateChange,this), this._player.on("waiting",this._onPlayerWaiting,this), this._onPlayerStateChange();},_onTimeLoading:function(a){a.time==this._timeDimension.getCurrentTime()&&this._displayDate&&L.DomUtil.addClass(this._displayDate,"loading");},_onTimeLimitsChanged:function(){var a=this._timeDimension.getLowerLimitIndex(),b=this._timeDimension.getUpperLimitIndex(),c=this._timeDimension.getAvailableTimes().length-1;this._limitKnobs&&(this._limitKnobs[0].options.rangeMax=c, this._limitKnobs[1].options.rangeMax=c, this._limitKnobs[0].setValue(a||0), this._limitKnobs[1].setValue(b||c)), this._sliderTime&&(this._sliderTime.options.rangeMax=c, this._sliderTime._update());},_onPlayerWaiting:function(a){this._buttonPlayPause&&this._player.getSteps()>0&&(L.DomUtil.addClass(this._buttonPlayPause,"loading"), this._buttonPlayPause.innerHTML=this._getDisplayLoadingText(a.available,a.buffer)), this._buttonPlayReversePause&&this._player.getSteps()<0&&(L.DomUtil.addClass(this._buttonPlayReversePause,"loading"), this._buttonPlayReversePause.innerHTML=this._getDisplayLoadingText(a.available,a.buffer));},_onPlayerStateChange:function(){if(this._buttonPlayPause&&(this._player.isPlaying()&&this._player.getSteps()>0?(L.DomUtil.addClass(this._buttonPlayPause,"pause"), L.DomUtil.removeClass(this._buttonPlayPause,"play")):(L.DomUtil.removeClass(this._buttonPlayPause,"pause"), L.DomUtil.addClass(this._buttonPlayPause,"play")), this._player.isWaiting()&&this._player.getSteps()>0?L.DomUtil.addClass(this._buttonPlayPause,"loading"):(this._buttonPlayPause.innerHTML="", L.DomUtil.removeClass(this._buttonPlayPause,"loading"))), this._buttonPlayReversePause&&(this._player.isPlaying()&&this._player.getSteps()<0?L.DomUtil.addClass(this._buttonPlayReversePause,"pause"):L.DomUtil.removeClass(this._buttonPlayReversePause,"pause"), this._player.isWaiting()&&this._player.getSteps()<0?L.DomUtil.addClass(this._buttonPlayReversePause,"loading"):(this._buttonPlayReversePause.innerHTML="", L.DomUtil.removeClass(this._buttonPlayReversePause,"loading"))), this._buttonLoop&&(this._player.isLooped()?L.DomUtil.addClass(this._buttonLoop,"looped"):L.DomUtil.removeClass(this._buttonLoop,"looped")), this._sliderSpeed&&!this._draggingSpeed){var a=this._player.getTransitionTime()||1e3;a=Math.round(1e4/a)/10, this._sliderSpeed.setValue(a);}},_update:function(){if(this._timeDimension)if(this._timeDimension.getCurrentTimeIndex()>=0){var a=new Date(this._timeDimension.getCurrentTime());this._displayDate&&(L.DomUtil.removeClass(this._displayDate,"loading"), this._displayDate.innerHTML=this._getDisplayDateFormat(a)), this._sliderTime&&!this._slidingTimeSlider&&this._sliderTime.setValue(this._timeDimension.getCurrentTimeIndex());}else this._displayDate&&(this._displayDate.innerHTML=this._getDisplayNoTimeError());},_createButton:function(a,b){var c=L.DomUtil.create("a",this.options.styleNS+" timecontrol-"+a.toLowerCase(),b);return c.href="#", c.title=a, L.DomEvent.addListener(c,"click",L.DomEvent.stopPropagation).addListener(c,"click",L.DomEvent.preventDefault).addListener(c,"click",this["_button"+a.replace(/ /i,"")+"Clicked"],this), c},_createSliderTime:function(a,b){var c,d,e,f,g;return c=L.DomUtil.create("div",a,b), d=L.DomUtil.create("div","slider",c), e=this._timeDimension.getAvailableTimes().length-1, this.options.limitSliders&&(g=this._limitKnobs=this._createLimitKnobs(d)), f=new L.UI.Knob(d,{className:"knob main",rangeMin:0,rangeMax:e}), f.on("dragend",function(a){var b=a.target.getValue();this._sliderTimeValueChanged(b), this._slidingTimeSlider=!1;},this), f.on("drag",function(a){this._slidingTimeSlider=!0;var b=this._timeDimension.getAvailableTimes()[a.target.getValue()];if(b){var c=new Date(b);this._displayDate&&(this._displayDate.innerHTML=this._getDisplayDateFormat(c)), this.options.timeSliderDragUpdate&&this._sliderTimeValueChanged(a.target.getValue());}},this), f.on("predrag",function(){var a,b;g&&(a=g[0].getPosition(), b=g[1].getPosition(), this._newPos.x<a&&(this._newPos.x=a), this._newPos.x>b&&(this._newPos.x=b));},f), L.DomEvent.on(d,"click",function(a){if(!L.DomUtil.hasClass(a.target,"knob")){var b=a.touches&&1===a.touches.length?a.touches[0]:a,c=L.DomEvent.getMousePosition(b,d).x;g?g[0].getPosition()<=c&&c<=g[1].getPosition()&&(f.setPosition(c), this._sliderTimeValueChanged(f.getValue())):(f.setPosition(c), this._sliderTimeValueChanged(f.getValue()));}},this), f.setPosition(0), f},_createLimitKnobs:function(a){L.DomUtil.addClass(a,"has-limits");var b=this._timeDimension.getAvailableTimes().length-1,c=L.DomUtil.create("div","range",a),d=new L.UI.Knob(a,{className:"knob lower",rangeMin:0,rangeMax:b}),e=new L.UI.Knob(a,{className:"knob upper",rangeMin:0,rangeMax:b});return L.DomUtil.setPosition(c,0), d.setPosition(0), e.setPosition(b), d.on("dragend",function(a){var b=a.target.getValue();this._sliderLimitsValueChanged(b,e.getValue());},this), e.on("dragend",function(a){var b=a.target.getValue();this._sliderLimitsValueChanged(d.getValue(),b);},this), d.on("drag positionchanged",function(){L.DomUtil.setPosition(c,L.point(d.getPosition(),0)), c.style.width=e.getPosition()-d.getPosition()+"px";},this), e.on("drag positionchanged",function(){c.style.width=e.getPosition()-d.getPosition()+"px";},this), e.on("predrag",function(){var a=d._toX(d.getValue()+this.options.limitMinimumRange);e._newPos.x<=a&&(e._newPos.x=a);},this), d.on("predrag",function(){var a=e._toX(e.getValue()-this.options.limitMinimumRange);d._newPos.x>=a&&(d._newPos.x=a);},this), d.on("dblclick",function(){this._timeDimension.setLowerLimitIndex(0);},this), e.on("dblclick",function(){this._timeDimension.setUpperLimitIndex(this._timeDimension.getAvailableTimes().length-1);},this), [d,e]},_createSliderSpeed:function(a,b){var c=L.DomUtil.create("div",a,b),d=L.DomUtil.create("span","speed",c),e=L.DomUtil.create("div","slider",c),f=Math.round(1e4/(this._player.getTransitionTime()||1e3))/10;d.innerHTML=this._getDisplaySpeed(f);var g=new L.UI.Knob(e,{step:this.options.speedStep,rangeMin:this.options.minSpeed,rangeMax:this.options.maxSpeed});return g.on("dragend",function(a){var b=a.target.getValue();this._draggingSpeed=!1, d.innerHTML=this._getDisplaySpeed(b), this._sliderSpeedValueChanged(b);},this), g.on("drag",function(a){this._draggingSpeed=!0, d.innerHTML=this._getDisplaySpeed(a.target.getValue());},this), g.on("positionchanged",function(a){d.innerHTML=this._getDisplaySpeed(a.target.getValue());},this), L.DomEvent.on(e,"click",function(a){if(a.target!==g._element){var b=a.touches&&1===a.touches.length?a.touches[0]:a,c=L.DomEvent.getMousePosition(b,e).x;g.setPosition(c), d.innerHTML=this._getDisplaySpeed(g.getValue()), this._sliderSpeedValueChanged(g.getValue());}},this), g},_buttonBackwardClicked:function(){this._timeDimension.previousTime(this._steps);},_buttonForwardClicked:function(){this._timeDimension.nextTime(this._steps);},_buttonLoopClicked:function(){this._player.setLooped(!this._player.isLooped());},_buttonPlayClicked:function(){this._player.isPlaying()?this._player.stop():this._player.start(this._steps);},_buttonPlayReverseClicked:function(){this._player.isPlaying()?this._player.stop():this._player.start(-1*this._steps);},_buttonDateClicked:function(){this._toggleDateUTC();},_sliderTimeValueChanged:function(a){this._timeDimension.setCurrentTimeIndex(a);},_sliderLimitsValueChanged:function(a,b){this._timeDimension.setLowerLimitIndex(a), this._timeDimension.setUpperLimitIndex(b);},_sliderSpeedValueChanged:function(a){this._player.setTransitionTime(1e3/a);},_toggleDateUTC:function(){this._dateUTC?(L.DomUtil.removeClass(this._displayDate,"utc"), this._displayDate.title="Local Time"):(L.DomUtil.addClass(this._displayDate,"utc"), this._displayDate.title="UTC Time"), this._dateUTC=!this._dateUTC, this._update();},_getDisplayDateFormat:function(a){return this._dateUTC?a.toISOString():a.toLocaleString()},_getDisplaySpeed:function(a){return a+"fps"},_getDisplayLoadingText:function(a,b){return"<span>"+Math.floor(a/b*100)+"%</span>"},_getDisplayNoTimeError:function(){return"Time not available"}}), L.Map.addInitHook(function(){this.options.timeDimensionControl&&(this.timeDimensionControl=L.control.timeDimension(this.options.timeDimensionControlOptions||{}), this.addControl(this.timeDimensionControl));}), L.control.timeDimension=function(a){return new L.Control.TimeDimension(a)};
+
+    var WMST = L.TimeDimension.Layer.WMS.extend({
 
         //override default parser to query all Layers (whether queryable or not)
         _parseTimeDimensionFromCapabilities: function _parseTimeDimensionFromCapabilities(xml) {
@@ -1681,7 +1707,7 @@
         };
         if (GeoPlatformClient.Config.leafletPane) opts.pane = GeoPlatformClient.Config.leafletPane;
 
-        var leafletLayer = new L$1.TileLayer.CustomWMS(url, opts);
+        var leafletLayer = new leaflet.TileLayer.CustomWMS(url, opts);
 
         var proxyUrl = GeoPlatformClient.Config.ualUrl + '/api/services/' + service.id + '/proxy/capabilities';
 
@@ -1696,13 +1722,13 @@
         }
 
         return new WMST(leafletLayer, {
-            timeDimension: L$1.timeDimension(tdOpts),
+            timeDimension: L.timeDimension(tdOpts),
             proxy: proxyUrl
         });
     }
 
-    L$1.TileLayer.WMST = WMST;
-    L$1.tileLayer.wmst = wmst;
+    leaflet.TileLayer.WMST = WMST;
+    leaflet.tileLayer.wmst = wmst;
 
     if (typeof Object.assign != 'function') {
         // Must be writable: true, enumerable: false, configurable: true
@@ -1761,7 +1787,7 @@
     /*
      * inspired by and uses code from https://github.com/mylen/leaflet.TileLayer.WMTS
      */
-    var WMTS = L$1.TileLayer.extend({
+    var WMTS = leaflet.TileLayer.extend({
 
         defaultWmtsParams: {
 
@@ -1777,9 +1803,9 @@
         initialize: function initialize(url, options) {
             // (String, Object)
             this._url = url;
-            var wmtsParams = L$1.extend({}, this.defaultWmtsParams);
+            var wmtsParams = leaflet.extend({}, this.defaultWmtsParams);
             var tileSize = options.tileSize || this.options.tileSize;
-            if (options.detectRetina && L$1.Browser.retina) {
+            if (options.detectRetina && leaflet.Browser.retina) {
                 wmtsParams.width = wmtsParams.height = tileSize * 2;
             } else {
                 wmtsParams.width = wmtsParams.height = tileSize;
@@ -1792,12 +1818,12 @@
             }
             this.wmtsParams = wmtsParams;
             this.matrixIds = options.matrixIds || this.getDefaultMatrix();
-            L$1.setOptions(this, options);
+            leaflet.setOptions(this, options);
         },
 
         onAdd: function onAdd(map) {
             this._crs = this.options.crs || map.options.crs;
-            L$1.TileLayer.prototype.onAdd.call(this, map);
+            leaflet.TileLayer.prototype.onAdd.call(this, map);
         },
 
         getTileUrl: function getTileUrl(coords) {
@@ -1806,7 +1832,7 @@
             var nwPoint = coords.multiplyBy(tileSize);
             nwPoint.x += 1;
             nwPoint.y -= 1;
-            var sePoint = nwPoint.add(new L$1.Point(tileSize, tileSize));
+            var sePoint = nwPoint.add(new leaflet.Point(tileSize, tileSize));
             var zoom = this._tileZoom;
             var nw = this._crs.project(this._map.unproject(nwPoint, zoom));
             var se = this._crs.project(this._map.unproject(sePoint, zoom));
@@ -1841,7 +1867,7 @@
                 // then the URL must not be OGC WMTS, so no need for WMTS parameters
 
             } else {
-                url = url + L$1.Util.getParamString(this.wmtsParams, url);
+                url = url + leaflet.Util.getParamString(this.wmtsParams, url);
                 if (isTileMatrixTemplated < 0) url += "&TileMatrix=" + ident; //tileMatrixSet
                 if (isTileRowTemplated < 0) url += "&TileRow=" + tilerow;
                 if (isTileColTemplated < 0) url += "&TileCol=" + tilecol;
@@ -1851,7 +1877,7 @@
         },
 
         setParams: function setParams(params, noRedraw) {
-            L$1.extend(this.wmtsParams, params);
+            leaflet.extend(this.wmtsParams, params);
             if (!noRedraw) {
                 this.redraw();
             }
@@ -1867,7 +1893,7 @@
             for (var i = 0; i < 22; i++) {
                 matrixIds3857[i] = {
                     identifier: "" + i,
-                    topLeftCorner: new L$1.LatLng(20037508.3428, -20037508.3428)
+                    topLeftCorner: new leaflet.LatLng(20037508.3428, -20037508.3428)
                 };
             }
             return matrixIds3857;
@@ -1907,10 +1933,10 @@
         return new WMTS(url, options);
     }
 
-    L$1.TileLayer.WMTS = WMTS;
-    L$1.tileLayer.wmts = wmts;
+    leaflet.TileLayer.WMTS = WMTS;
+    leaflet.tileLayer.wmts = wmts;
 
-    var esriTileLayer = L$1.TileLayer.extend({
+    var esriTileLayer = leaflet.TileLayer.extend({
 
         defaultESRIParams: {
             layers: '', //=show:0,1,2
@@ -1937,11 +1963,11 @@
             }
             this._url = url;
 
-            var esriParams = L$1.extend({}, this.defaultESRIParams),
+            var esriParams = leaflet.extend({}, this.defaultESRIParams),
                 tileSize = options.tileSize || this.options.tileSize;
 
             var dim = void 0;
-            if (options.detectRetina && L$1.Browser.retina) {
+            if (options.detectRetina && leaflet.Browser.retina) {
                 dim = esriParams.height = tileSize * 2;
             } else {
                 dim = esriParams.height = tileSize;
@@ -1960,13 +1986,13 @@
 
             this.esriParams = esriParams;
 
-            L$1.setOptions(this, options);
+            leaflet.setOptions(this, options);
         },
 
         onAdd: function onAdd(map) {
             this._crs = this.options.crs || map.options.crs;
             this.esriParams.srs = this.esriParams.imagesr = this.esriParams.bboxsr = this._crs.code;
-            L$1.TileLayer.prototype.onAdd.call(this, map);
+            leaflet.TileLayer.prototype.onAdd.call(this, map);
         },
 
         getTileUrl: function getTileUrl(tilePoint) {
@@ -1979,20 +2005,20 @@
                 nw = this._crs.project(map.unproject(nwPoint, tilePoint.z)),
                 se = this._crs.project(map.unproject(sePoint, tilePoint.z)),
                 bbox = [nw.x, se.y, se.x, nw.y].join(','),
-                url = L$1.Util.template(this._url, { s: this._getSubdomain(tilePoint) });
+                url = leaflet.Util.template(this._url, { s: this._getSubdomain(tilePoint) });
 
-            var params = L$1.extend({}, this.esriParams);
+            var params = leaflet.extend({}, this.esriParams);
             params.layers = "show:" + params.layers;
 
             //convert to esri-special SR for spherical mercator
             if (params.bboxsr === 'EPSG:3857') params.bboxsr = '102100';
             if (params.imagesr === 'EPSG:3857') params.imagesr = '102100';
 
-            return url + L$1.Util.getParamString(params, url, true) + '&BBOX=' + bbox;
+            return url + leaflet.Util.getParamString(params, url, true) + '&BBOX=' + bbox;
         },
 
         setParams: function setParams(params, noRedraw) {
-            L$1.extend(this.esriParams, params);
+            leaflet.extend(this.esriParams, params);
             if (!noRedraw) {
                 this.redraw();
             }
@@ -2000,9 +2026,9 @@
         }
     });
 
-    L$1.TileLayer.ESRI = esriTileLayer;
-    L$1.tileLayer.esri = function (url, options) {
-        return new L$1.TileLayer.ESRI(url, options);
+    leaflet.TileLayer.ESRI = esriTileLayer;
+    leaflet.tileLayer.esri = function (url, options) {
+        return new leaflet.TileLayer.ESRI(url, options);
     };
 
     /**
@@ -2011,7 +2037,7 @@
      */
     function OSMLayerFactory(layer) {
 
-        return new L$1.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        return new leaflet.TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             minZoom: 1, maxZoom: 19,
             attribution: 'Map data (c) <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
         });
@@ -2062,11 +2088,11 @@
         } else if (types.ESRI_TILE_SERVER && types.ESRI_TILE_SERVER.uri === typeUri) {
             opts = { url: url, useCors: true };
             if (GeoPlatformClient.Config.leafletPane) opts.pane = GeoPlatformClient.Config.leafletPane;
-            return L$1.esri.tiledMapLayer(opts);
+            return esri.tiledMapLayer(opts);
         } else if (types.ESRI_IMAGE_SERVER && types.ESRI_IMAGE_SERVER.uri === typeUri) {
             opts = { url: url, useCors: true };
             if (GeoPlatformClient.Config.leafletPane) opts.pane = GeoPlatformClient.Config.leafletPane;
-            return L$1.esri.imageMapLayer(opts);
+            return esri.imageMapLayer(opts);
         } else if (types.FEED && types.FEED.uri === typeUri) {
             return geoJsonFeed(layer);
         } else if (types.WMS && types.WMS.uri === typeUri) {
@@ -2186,7 +2212,7 @@
                     if (!L) {
                         throw new Error("Leaflet is not available");
                     }
-                    return L$1.circleMarker(latlng, style);
+                    return leaflet.circleMarker(latlng, style);
                 }
             };
 
@@ -2990,12 +3016,12 @@
                 if (!this._featureLayer) {
 
                     // _featureLayer = geoJson([], _geoJsonLayerOpts).addTo(_mapInstance);
-                    this._featureLayer = L$1.featureGroup().addTo(this._mapInstance);
+                    this._featureLayer = leaflet.featureGroup().addTo(this._mapInstance);
                 }
 
                 // _featureLayer.addData(json);
                 var opts = jQuery.extend({}, this._geoJsonLayerOpts);
-                L$1.geoJson(json, opts).eachLayer(function (l) {
+                leaflet.geoJson(json, opts).eachLayer(function (l) {
                     return _this6.addFeatureLayer(l);
                 });
 
@@ -3053,7 +3079,7 @@
                     this._featureLayer.removeLayer(layer);
 
                     //add replacement
-                    L$1.geoJson(featureJson, this._geoJsonLayerOpts).eachLayer(function (l) {
+                    leaflet.geoJson(featureJson, this._geoJsonLayerOpts).eachLayer(function (l) {
                         return _this7.addFeatureLayer(l);
                     });
 
@@ -3181,7 +3207,7 @@
                 if (!L) {
                     throw new Error("Leaflet is not available");
                 }
-                if (!layer.feature && layer instanceof L$1.LayerGroup) {
+                if (!layer.feature && layer instanceof leaflet.LayerGroup) {
                     layer.eachLayer(function (child) {
                         _this8._addFeatureLayer(child);
                     });
