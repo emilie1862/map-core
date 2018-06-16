@@ -1,7 +1,8 @@
 
 /* jshint ignore:start */
-import { setOptions, markerClusterGroup, GeoJSON/*, esri*/ } from 'leaflet';
+import { setOptions, GeoJSON } from 'leaflet';
 import * as esri from "esri-leaflet";
+import * as MarkerClusterGroup from 'leaflet.markercluster';
 
 // import { Cluster } from 'esri-leaflet';
 
@@ -30,7 +31,7 @@ var FeatureLayer = esri.FeatureManager.extend({
     this._layers = {};
     this._leafletIds = {};
 
-    this.cluster = markerClusterGroup(options);
+    this.cluster = L.markerClusterGroup(options);
     this._key = 'c' + (Math.random() * 1e9).toString(36).replace('.', '_');
 
     this.cluster.addEventParent(this);

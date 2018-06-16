@@ -36,13 +36,22 @@ gulp.task('jshint', function () {
 gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
     return rollup.rollup({
         input: './src/index.js',
-        external: ['Q', 'q', 'jquery', 'jQuery', 'leaflet', 'Leaflet', 'L', 'geoplatform.client'],
+        external: [
+            'Q', 'q',
+            'jquery', 'jQuery',
+            'leaflet', 'Leaflet', 'L',
+            'esri', 'esri-leaflet',
+            'leaflet-timedimension',
+            'geoplatform.client'
+        ],
         output: {
             format: 'umd',
             globals: {
                 'q': 'Q',
                 'jquery': 'jQuery',
                 'leaflet': 'L',
+                'esri-leaflet': 'esri',
+                'leaflet-timedimension': 'L.TimeDimension',
                 'geoplatform.client': 'GeoPlatformClient'
             }
         },
@@ -51,8 +60,9 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
             resolve({
                 jsnext: true,
                 main: true,
-                browser: true,
+                browser: true
             }),
+            commonjs(),
             rollupBabel({ exclude: 'node_modules/**' })
         ]
     })
@@ -66,6 +76,8 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
               'q': 'Q',
               'jquery': 'jQuery',
               'leaflet': 'L',
+              'esri-leaflet': 'L.esri',
+              'leaflet-timedimension': 'L.TimeDimension',
               'geoplatform.client': 'GeoPlatformClient'
           },
           sourcemap: true
