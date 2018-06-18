@@ -1,8 +1,14 @@
 
 /* jshint ignore:start */
-import { setOptions, GeoJSON } from 'leaflet';
+// import { setOptions, GeoJSON } from 'leaflet';
+import * as Leaflet from "leaflet";
 import * as esri from "esri-leaflet";
 import * as MarkerClusterGroup from 'leaflet.markercluster';
+
+let L = Leaflet;
+if(!L.esri) {
+    L.esri = esri;
+}
 
 // import { Cluster } from 'esri-leaflet';
 
@@ -12,7 +18,7 @@ import * as MarkerClusterGroup from 'leaflet.markercluster';
 
 var version = "2.0.0";
 
-var FeatureLayer = esri.FeatureManager.extend({
+var FeatureLayer = L.esri.FeatureManager.extend({
 
   statics: {
     EVENTS: 'click dblclick mouseover mouseout mousemove contextmenu popupopen popupclose',
@@ -26,7 +32,7 @@ var FeatureLayer = esri.FeatureManager.extend({
   initialize: function (options) {
     esri.FeatureManager.prototype.initialize.call(this, options);
 
-    options = setOptions(this, options);
+    options = L.setOptions(this, options);
 
     this._layers = {};
     this._leafletIds = {};
@@ -67,8 +73,8 @@ var FeatureLayer = esri.FeatureManager.extend({
       var layer = this._layers[geojson.id];
 
       if (!layer) {
-        var newLayer = GeoJSON.geometryToLayer(geojson, this.options);
-        newLayer.feature = GeoJSON.asFeature(geojson);
+        var newLayer = L.GeoJSON.geometryToLayer(geojson, this.options);
+        newLayer.feature = L.GeoJSON.asFeature(geojson);
         newLayer.defaultOptions = newLayer.options;
         newLayer._leaflet_id = this._key + '_' + geojson.id;
 

@@ -3,11 +3,13 @@
 import jQuery from "jquery";
 import Q from "q";
 import * as L from 'leaflet';
-import * as TimeDimension from 'leaflet-timedimension';
-
+import * as TimeDimension from 'leaflet-timedimension/dist/leaflet.timedimension.min';
 
 import {Config} from 'geoplatform.client';
 
+if(!L.TimeDimension) {
+    throw new Error("Leaflet TimeDimension library not properly configured!");
+}
 
 var WMST = L.TimeDimension.Layer.WMS.extend({
 

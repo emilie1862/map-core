@@ -50,7 +50,7 @@ gulp.task('js', 'Concat, Uglify JavaScript into a single file', function() {
                 'q': 'Q',
                 'jquery': 'jQuery',
                 'leaflet': 'L',
-                'esri-leaflet': 'esri',
+                'esri-leaflet': 'L.esri',
                 'leaflet-timedimension': 'L.TimeDimension',
                 'geoplatform.client': 'GeoPlatformClient'
             }
