@@ -2203,7 +2203,7 @@
                     }
 
                     var props = feature.properties = feature.properties || {};
-                    feature.properties.id = Math.floor(Math.random() * 999999);
+                    feature.properties.id = props.id || Math.floor(Math.random() * 999999);
                     feature.properties.label = props.label || props.title || props.name || "Untitled " + feature.geometry.type + " Feature";
                     feature.properties.description = props.description || props.desc || "This feature needs a description!";
                     feature.properties.style = props.style || style;
